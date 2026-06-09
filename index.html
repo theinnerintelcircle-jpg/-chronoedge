@@ -1,1 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChronoEdge — Watch Deal Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --black: #0D0D0D;
+    --white: #FAFAF8;
+    --gold: #B8860B;
+    --gold-light: #D4A017;
+    --mid: #6B6B6B;
+    --border: #E8E4DC;
+    --green: #1A7A4A;
+    --green-bg: #F0F7F3;
+    --red-bg: #FDF2F2;
+    --red: #C0392B;
+  }
 
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+  }
+
+  .nav-logo {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--black);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--mid);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nav-links a:hover { color: var(--black); }
+
+  .nav-cta {
+    background: var(--black) !important;
+    color: var(--white) !important;
+    padding: 8px 20px;
+    font-size: 11px !important;
+    letter-spacing: 0.1em !important;
+    font-weight: 500 !important;
+  }
+
+  /* HERO */
+  .hero {
+    padding-top: 56px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+
+  .hero-left {
+    padding: 80px 60px 80px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 24px;
+  }
+
+  .hero-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 5vw, 72px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--black);
+    margin-bottom: 28px;
+  }
+
+  .hero-headline em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--mid);
+    line-height: 1.7;
+    max-width: 440px;
+    margin-bottom: 48px;
+    font-weight: 300;
+  }
+
+  .hero-form {
+    display: flex;
+    gap: 0;
+    max-width: 420px;
+    margin-bottom: 20px;
+  }
+
+  .hero-form input {
+    flex: 1;
+    padding: 14px 20px;
+    border: 1px solid var(--black);
+    border-right: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: transparent;
+    color: var(--black);
+    outline: none;
+  }
+
+  .hero-form input::placeholder { color: #aaa; }
+
+  .hero-form button {
+    padding: 14px 28px;
+    background: var(--black);
+    color: var(--white);
+    border: 1px solid var(--black);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+
+  .hero-form button:hover { background: var(--gold); border-color: var(--gold); }
+
+  .hero-note {
+    font-size: 11px;
+    color: #aaa;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .hero-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--black);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .hero-stat-label {
+    font-size: 10px;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* HERO RIGHT - Live deal */
+  .hero-right {
+    padding: 80px 40px 80px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #F7F5F1;
+  }
+
+  .live-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--mid);
+    margin-bottom: 32px;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1A7A4A;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .deal-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-bottom: 16px;
+  }
+
+  .deal-brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .deal-model {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+
+  .deal-ref {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 28px;
+  }
+
+  .deal-prices {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 24px;
+  }
+
+  .deal-price-cell {
+    background: var(--white);
+    padding: 16px;
+  }
+
+  .deal-price-cell-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    margin-bottom: 6px;
+  }
+
+  .deal-price-cell-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--black);
+  }
+
+  .deal-price-cell-val.discount { color: var(--green); }
+  .deal-price-cell-val.spread { color: var(--green); }
+
+  .deal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .deal-meta-left {
+    display: flex;
+    gap: 16px;
+  }
+
+  .deal-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mid);
+    letter-spacing: 0.06em;
+  }
+
+  .deal-alert-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    background: var(--green-bg);
+    color: var(--green);
+    padding: 4px 10px;
+    font-weight: 500;
+  }
+
+  /* Telegram preview */
+  .telegram-preview {
+    background: #EFEBE0;
+    border: 1px solid #DDD8CC;
+    padding: 20px 24px;
+    position: relative;
+  }
+
+  .tg-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--mid);
+    margin-bottom: 14px;
+  }
+
+  .tg-message {
+    background: white;
+    border-radius: 0 12px 12px 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--black);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    max-width: 280px;
+  }
+
+  .tg-message strong { font-weight: 500; }
+  .tg-message .tg-green { color: var(--green); font-family: 'DM Mono', monospace; font-size: 12px; }
+  .tg-message .tg-gold { color: var(--gold); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; }
+  .tg-message .tg-link { color: #0088cc; font-size: 12px; }
+  .tg-time { font-size: 10px; color: #aaa; text-align: right; margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+  /* HOW IT WORKS */
+  .section { padding: 100px 40px; }
+  .section-border { border-top: 1px solid var(--border); }
+
+  .section-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 60px;
+    max-width: 600px;
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .how-cell {
+    background: var(--white);
+    padding: 48px 40px;
+  }
+
+  .how-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 400;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+
+  .how-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .how-desc {
+    font-size: 14px;
+    color: var(--mid);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* VS SECTION */
+  .vs-section {
+    padding: 100px 40px;
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .vs-section .section-eyebrow { color: var(--gold-light); }
+
+  .vs-section .section-title { color: var(--white); }
+
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #333;
+    border: 1px solid #333;
+  }
+
+  .vs-col { padding: 40px; background: var(--black); }
+
+  .vs-col-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #222;
+  }
+
+  .vs-col-header.theirs { color: #555; }
+  .vs-col-header.ours { color: var(--gold-light); }
+
+  .vs-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  .vs-item.no { color: #444; }
+  .vs-item.yes { color: #ccc; }
+
+  .vs-icon { font-size: 12px; margin-top: 3px; flex-shrink: 0; }
+  .vs-icon.no { color: #333; }
+  .vs-icon.yes { color: var(--green); }
+
+  /* PRICING */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .pricing-card {
+    background: var(--white);
+    padding: 48px 36px;
+    position: relative;
+  }
+
+  .pricing-card.featured {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .pricing-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    background: var(--gold);
+    color: var(--white);
+    padding: 4px 10px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+
+  .pricing-plan {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--mid);
+    margin-bottom: 8px;
+  }
+
+  .pricing-card.featured .pricing-plan { color: #888; }
+
+  .pricing-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-period {
+    font-size: 13px;
+    color: var(--mid);
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .pricing-card.featured .pricing-period { color: #666; }
+
+  .pricing-features {
+    list-style: none;
+    margin-bottom: 36px;
+  }
+
+  .pricing-features li {
+    font-size: 13px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 300;
+    color: var(--mid);
+  }
+
+  .pricing-card.featured .pricing-features li {
+    border-color: #222;
+    color: #aaa;
+  }
+
+  .pricing-features li::before {
+    content: '—';
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--border);
+    flex-shrink: 0;
+  }
+
+  .pricing-features li.included { color: var(--black); }
+  .pricing-card.featured .pricing-features li.included { color: var(--white); }
+
+  .pricing-features li.included::before { content: '✓'; color: var(--green); }
+
+  .pricing-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+    border: 1px solid var(--black);
+    background: transparent;
+    color: var(--black);
+  }
+
+  .pricing-btn:hover { background: var(--black); color: var(--white); }
+
+  .pricing-card.featured .pricing-btn {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--white);
+  }
+
+  .pricing-card.featured .pricing-btn:hover { background: var(--gold-light); border-color: var(--gold-light); }
+
+  /* SOURCES */
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .source-cell {
+    background: var(--white);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .source-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .source-desc {
+    font-size: 12px;
+    color: var(--mid);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  .source-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+
+  .source-status.live { color: var(--green); }
+  .source-status.soon { color: var(--gold); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--black);
+  }
+
+  .footer-logo span { color: var(--gold); }
+
+  .footer-copy {
+    font-size: 11px;
+    color: #bbb;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* SUCCESS STATE */
+  .success-msg {
+    display: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    margin-top: 12px;
+  }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    background: var(--white);
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 60px;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+
+  .marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.06em;
+  }
+
+  .marquee-item .m-brand { color: var(--black); font-weight: 500; }
+  .marquee-item .m-disc { color: var(--green); font-weight: 500; }
+  .marquee-item .m-sep { color: var(--border); }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 768px) {
+    html, body { overflow-x: hidden; width: 100%; }
+
+    nav { padding: 0 16px; }
+    .nav-links { display: none; }
+
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+
+    .hero-left {
+      padding: 40px 16px 48px;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-headline { font-size: 38px; }
+
+    .hero-sub { font-size: 15px; max-width: 100%; }
+
+    .hero-form {
+      flex-direction: column;
+      max-width: 100%;
+      gap: 0;
+    }
+
+    .hero-form input {
+      border-right: 1px solid var(--black);
+      border-bottom: none;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .hero-form button {
+      width: 100%;
+      padding: 14px;
+      font-size: 12px;
+      border-top: none;
+    }
+
+    .hero-stats {
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stat-val { font-size: 24px; }
+
+    .hero-right {
+      padding: 40px 16px;
+    }
+
+    .deal-card { padding: 20px 16px; }
+
+    .deal-prices {
+      grid-template-columns: 1fr;
+      gap: 1px;
+    }
+
+    .deal-price-cell { padding: 12px; }
+    .deal-price-cell-val { font-size: 16px; }
+
+    .deal-meta { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+    .telegram-preview { padding: 16px; }
+    .tg-message { max-width: 100%; font-size: 12px; }
+
+    .marquee-item { font-size: 10px; }
+
+    .how-grid { grid-template-columns: 1fr; }
+    .how-cell { padding: 32px 16px; }
+
+    .vs-grid { grid-template-columns: 1fr; }
+    .vs-col { padding: 28px 16px; }
+
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card { padding: 36px 20px; }
+
+    .sources-grid { grid-template-columns: 1fr 1fr; }
+    .source-cell { padding: 20px 14px; }
+
+    .section { padding: 60px 16px; }
+    .section-title { font-size: 28px; }
+
+    .vs-section { padding: 60px 16px; }
+    .vs-section .section-title { font-size: 28px; }
+
+    footer {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+      padding: 32px 16px;
+    }
+
+    #pricing .hero-form,
+    section:last-of-type .hero-form {
+      flex-direction: column;
+      max-width: 100%;
+    }
+
+    section:last-of-type .hero-form input {
+      border-right: 1px solid var(--black);
+      border-bottom: none;
+    }
+
+    section:last-of-type .hero-form button {
+      border-top: none;
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">CHRONO<span>EDGE</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#sources">Sources</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#waitlist" class="nav-cta">Join Waitlist</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">WATCH DEAL INTELLIGENCE</div>
+    <h1 class="hero-headline">
+      Find the deal<br>
+      before anyone<br>
+      <em>else does.</em>
+    </h1>
+    <p class="hero-sub">
+      ChronoEdge scans every major marketplace, scores every listing against real market data, and alerts you the moment a genuine opportunity appears. No noise. Just deals.
+    </p>
+    <div class="hero-form" id="waitlist">
+      <input type="email" id="email-input" placeholder="Your email address" />
+      <button onclick="handleSignup()">JOIN WAITLIST</button>
+    </div>
+    <div class="success-msg" id="success-msg">✓ YOU'RE ON THE LIST — WE'LL BE IN TOUCH</div>
+    <p class="hero-note">Free to join. No card required. Early access pricing locked in.</p>
+    <div class="hero-stats">
+      <div>
+        <span class="hero-stat-val">14</span>
+        <span class="hero-stat-label">BRANDS TRACKED</span>
+      </div>
+      <div>
+        <span class="hero-stat-val">6+</span>
+        <span class="hero-stat-label">DATA SOURCES</span>
+      </div>
+      <div>
+        <span class="hero-stat-val">24/7</span>
+        <span class="hero-stat-label">SCANNING</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="live-label">
+      <div class="live-dot"></div>
+      LIVE DEAL EXAMPLE
+    </div>
+
+    <div class="deal-card">
+      <div class="deal-brand">ROLEX</div>
+      <div class="deal-model">Submariner Date</div>
+      <div class="deal-ref">REF. 126610LN · London · Dealer · Excellent</div>
+      <div class="deal-prices">
+        <div class="deal-price-cell">
+          <div class="deal-price-cell-label">LISTED AT</div>
+          <div class="deal-price-cell-val">£7,950</div>
+        </div>
+        <div class="deal-price-cell">
+          <div class="deal-price-cell-label">MARKET VALUE</div>
+          <div class="deal-price-cell-val">£9,200</div>
+        </div>
+        <div class="deal-price-cell">
+          <div class="deal-price-cell-label">POTENTIAL SPREAD</div>
+          <div class="deal-price-cell-val spread">+£1,250</div>
+        </div>
+      </div>
+      <div class="deal-meta">
+        <div class="deal-meta-left">
+          <span class="deal-tag">⭐ 99.6% seller</span>
+          <span class="deal-tag">Buy It Now</span>
+        </div>
+        <div class="deal-alert-badge">ALERT SENT</div>
+      </div>
+    </div>
+
+    <div class="telegram-preview">
+      <div class="tg-header">TELEGRAM ALERT — DELIVERED INSTANTLY</div>
+      <div class="tg-message">
+        <div class="tg-gold">🔔 CHRONOEDGE DEAL ALERT</div>
+        <br>
+        <strong>Rolex Submariner Date</strong><br>
+        Ref: 126610LN · London<br>
+        <br>
+        💰 Listed: <strong>£7,950</strong><br>
+        📊 Market: £9,200<br>
+        <span class="tg-green">📉 Discount: -13.5% · Spread: +£1,250</span><br>
+        <br>
+        ⭐ Seller: 99.6% · Buy It Now<br>
+        <br>
+        <span class="tg-link">👉 View listing on eBay →</span>
+      </div>
+      <div class="tg-time">just now</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item"><span class="m-brand">PATEK PHILIPPE</span> Nautilus 5711 <span class="m-disc">-22.0%</span> <span class="m-sep">·</span> £89,500 listed</div>
+    <div class="marquee-item"><span class="m-brand">ROLEX</span> Daytona 116500LN <span class="m-disc">-17.8%</span> <span class="m-sep">·</span> £15,200 listed</div>
+    <div class="marquee-item"><span class="m-brand">AUDEMARS PIGUET</span> Royal Oak 15500ST <span class="m-disc">-17.4%</span> <span class="m-sep">·</span> £52,000 listed</div>
+    <div class="marquee-item"><span class="m-brand">OMEGA</span> Speedmaster Moonwatch <span class="m-disc">-11.1%</span> <span class="m-sep">·</span> £4,800 listed</div>
+    <div class="marquee-item"><span class="m-brand">GRAND SEIKO</span> Spring Drive SBGA211 <span class="m-disc">-17.4%</span> <span class="m-sep">·</span> £3,800 listed</div>
+    <div class="marquee-item"><span class="m-brand">IWC</span> Portugieser Chronograph <span class="m-disc">-12.9%</span> <span class="m-sep">·</span> £6,200 listed</div>
+    <div class="marquee-item"><span class="m-brand">TUDOR</span> Black Bay 58 <span class="m-disc">-13.2%</span> <span class="m-sep">·</span> £2,950 listed</div>
+    <!-- Duplicate for seamless loop -->
+    <div class="marquee-item"><span class="m-brand">PATEK PHILIPPE</span> Nautilus 5711 <span class="m-disc">-22.0%</span> <span class="m-sep">·</span> £89,500 listed</div>
+    <div class="marquee-item"><span class="m-brand">ROLEX</span> Daytona 116500LN <span class="m-disc">-17.8%</span> <span class="m-sep">·</span> £15,200 listed</div>
+    <div class="marquee-item"><span class="m-brand">AUDEMARS PIGUET</span> Royal Oak 15500ST <span class="m-disc">-17.4%</span> <span class="m-sep">·</span> £52,000 listed</div>
+    <div class="marquee-item"><span class="m-brand">OMEGA</span> Speedmaster Moonwatch <span class="m-disc">-11.1%</span> <span class="m-sep">·</span> £4,800 listed</div>
+    <div class="marquee-item"><span class="m-brand">GRAND SEIKO</span> Spring Drive SBGA211 <span class="m-disc">-17.4%</span> <span class="m-sep">·</span> £3,800 listed</div>
+    <div class="marquee-item"><span class="m-brand">IWC</span> Portugieser Chronograph <span class="m-disc">-12.9%</span> <span class="m-sep">·</span> £6,200 listed</div>
+    <div class="marquee-item"><span class="m-brand">TUDOR</span> Black Bay 58 <span class="m-disc">-13.2%</span> <span class="m-sep">·</span> £2,950 listed</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section section-border" id="how">
+  <div class="section-eyebrow">HOW IT WORKS</div>
+  <h2 class="section-title">Intelligence, not just notifications.</h2>
+  <div class="how-grid">
+    <div class="how-cell">
+      <div class="how-num">01</div>
+      <div class="how-title">We scan everything</div>
+      <p class="how-desc">ChronoEdge monitors eBay, Chrono24, Gumtree, and more — continuously, 24 hours a day. Every new listing is captured within minutes of going live.</p>
+    </div>
+    <div class="how-cell">
+      <div class="how-num">02</div>
+      <div class="how-title">We score every deal</div>
+      <p class="how-desc">Each listing is compared against our market value database built from thousands of real sold prices. We calculate the discount, the spread, and the opportunity score.</p>
+    </div>
+    <div class="how-cell">
+      <div class="how-num">03</div>
+      <div class="how-title">You get the alert</div>
+      <p class="how-desc">When a listing hits your minimum discount threshold, an alert fires instantly to your Telegram, email, or phone. You see it before anyone else starts their search.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VS SECTION -->
+<section class="vs-section">
+  <div class="section-eyebrow">WHY CHRONOEDGE</div>
+  <h2 class="section-title" style="margin-bottom:40px;">eBay sends you everything.<br>We send you <em style="font-style:italic;color:var(--gold-light);">opportunities.</em></h2>
+  <div class="vs-grid">
+    <div class="vs-col">
+      <div class="vs-col-header theirs">EBAY SAVED SEARCH ALERTS</div>
+      <div class="vs-item no"><span class="vs-icon no">✕</span> No market value comparison</div>
+      <div class="vs-item no"><span class="vs-icon no">✕</span> No discount calculation</div>
+      <div class="vs-item no"><span class="vs-icon no">✕</span> No profit spread estimate</div>
+      <div class="vs-item no"><span class="vs-icon no">✕</span> No deal scoring or filtering</div>
+      <div class="vs-item no"><span class="vs-icon no">✕</span> eBay listings only</div>
+      <div class="vs-item no"><span class="vs-icon no">✕</span> Delayed email only</div>
+      <div class="vs-item no"><span class="vs-icon no">✕</span> Every listing, good or bad</div>
+    </div>
+    <div class="vs-col">
+      <div class="vs-col-header ours">CHRONOEDGE INTELLIGENCE</div>
+      <div class="vs-item yes"><span class="vs-icon yes">✓</span> Real market value on every listing</div>
+      <div class="vs-item yes"><span class="vs-icon yes">✓</span> Discount % calculated automatically</div>
+      <div class="vs-item yes"><span class="vs-icon yes">✓</span> Profit spread shown instantly</div>
+      <div class="vs-item yes"><span class="vs-icon yes">✓</span> Only alerts when your threshold is hit</div>
+      <div class="vs-item yes"><span class="vs-icon yes">✓</span> eBay, Gumtree, Chrono24 and more</div>
+      <div class="vs-item yes"><span class="vs-icon yes">✓</span> Instant Telegram, push, and email</div>
+      <div class="vs-item yes"><span class="vs-icon yes">✓</span> Only genuine opportunities</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="section section-border" id="sources">
+  <div class="section-eyebrow">DATA SOURCES</div>
+  <h2 class="section-title">Every market. One alert.</h2>
+  <div class="sources-grid">
+    <div class="source-cell">
+      <div class="source-name">eBay</div>
+      <p class="source-desc">The UK's largest second-hand watch marketplace. Private sellers and dealers, Buy It Now and auction.</p>
+      <div class="source-status live">● LIVE — PHASE 1</div>
+    </div>
+    <div class="source-cell">
+      <div class="source-name">Gumtree</div>
+      <p class="source-desc">UK classifieds with thousands of private watch listings daily. Often the best prices, least competition.</p>
+      <div class="source-status live">● LIVE — PHASE 1</div>
+    </div>
+    <div class="source-cell">
+      <div class="source-name">Chrono24</div>
+      <p class="source-desc">The world's largest luxury watch marketplace. Global dealer inventory and price benchmarks.</p>
+      <div class="source-status soon">◐ COMING — PHASE 2</div>
+    </div>
+    <div class="source-cell">
+      <div class="source-name">Watch Forums</div>
+      <p class="source-desc">WatchUSeek, RolexForums, Reddit. Private seller deals posted and gone within hours.</p>
+      <div class="source-status soon">◐ COMING — PHASE 2</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section section-border" id="pricing">
+  <div class="section-eyebrow">PRICING</div>
+  <h2 class="section-title">Start free. Upgrade when you find your first deal.</h2>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-plan">FREE</div>
+      <div class="pricing-price">£0</div>
+      <div class="pricing-period">forever</div>
+      <ul class="pricing-features">
+        <li class="included">Basic deal browser</li>
+        <li class="included">8 saved searches</li>
+        <li>Delayed alerts (30 min)</li>
+        <li>eBay source only</li>
+        <li>No profit estimates</li>
+        <li>No Telegram alerts</li>
+      </ul>
+      <a href="#waitlist" class="pricing-btn">JOIN WAITLIST</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="pricing-badge">MOST POPULAR</div>
+      <div class="pricing-plan">PREMIUM</div>
+      <div class="pricing-price">£24</div>
+      <div class="pricing-period">per month · cancel anytime</div>
+      <ul class="pricing-features">
+        <li class="included">Real-time alerts</li>
+        <li class="included">Unlimited watchlists</li>
+        <li class="included">Profit spread estimates</li>
+        <li class="included">All data sources</li>
+        <li class="included">Telegram + email + push</li>
+        <li class="included">Advanced filters</li>
+      </ul>
+      <a href="#waitlist" class="pricing-btn">JOIN WAITLIST</a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-plan">DEALER</div>
+      <div class="pricing-price">£79</div>
+      <div class="pricing-period">per month · cancel anytime</div>
+      <ul class="pricing-features">
+        <li class="included">Everything in Premium</li>
+        <li class="included">Priority alerts (fastest)</li>
+        <li class="included">Bulk brand monitoring</li>
+        <li class="included">CSV export</li>
+        <li class="included">Team accounts (3 seats)</li>
+        <li class="included">Dedicated support</li>
+      </ul>
+      <a href="#waitlist" class="pricing-btn">JOIN WAITLIST</a>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section style="padding: 100px 40px; text-align: center; border-top: 1px solid var(--border);">
+  <div class="section-eyebrow" style="text-align:center;">EARLY ACCESS</div>
+  <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(32px,4vw,56px); font-weight:400; margin-bottom: 20px; line-height:1.1;">
+    The deal you miss today<br>is the one that got away.
+  </h2>
+  <p style="font-size:16px; color:var(--mid); margin-bottom:40px; font-weight:300;">Join the waitlist. Early members get founding pricing locked in forever.</p>
+  <div class="hero-form" style="margin: 0 auto 16px; justify-content: center;">
+    <input type="email" id="email-input-2" placeholder="Your email address" />
+    <button onclick="handleSignup2()">JOIN WAITLIST</button>
+  </div>
+  <div class="success-msg" id="success-msg-2" style="text-align:center;display:none;">✓ YOU'RE ON THE LIST — WE'LL BE IN TOUCH</div>
+  <p class="hero-note" style="text-align:center;">chronoedge.net · Launching 2025</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">CHRONO<span>EDGE</span></div>
+  <div class="footer-copy">© 2025 ChronoEdge · Watch Deal Intelligence · chronoedge.net</div>
+</footer>
+
+<script>
+  function handleSignup() {
+    const email = document.getElementById('email-input').value;
+    if (!email || !email.includes('@')) {
+      document.getElementById('email-input').style.borderColor = '#C0392B';
+      return;
+    }
+    document.getElementById('email-input').style.borderColor = '';
+    document.getElementById('success-msg').style.display = 'block';
+    document.getElementById('email-input').value = '';
+    console.log('Waitlist signup:', email);
+  }
+
+  function handleSignup2() {
+    const email = document.getElementById('email-input-2').value;
+    if (!email || !email.includes('@')) {
+      document.getElementById('email-input-2').style.borderColor = '#C0392B';
+      return;
+    }
+    document.getElementById('email-input-2').style.borderColor = '';
+    document.getElementById('success-msg-2').style.display = 'block';
+    document.getElementById('email-input-2').value = '';
+    console.log('Waitlist signup:', email);
+  }
+
+  document.getElementById('email-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') handleSignup();
+  });
+
+  document.getElementById('email-input-2').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') handleSignup2();
+  });
+</script>
+</body>
+</html>
