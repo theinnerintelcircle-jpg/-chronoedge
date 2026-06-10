@@ -19,10 +19,9 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
         'apikey': SUPABASE_SERVICE_KEY,
-        'Prefer': 'resolution=ignore-duplicates'
+        'Prefer': 'resolution=ignore-duplicates,return=minimal'
       },
       body: JSON.stringify({
-        id: crypto.randomUUID(),
         email: email,
         plan: 'waitlist',
         alert_email: true,
@@ -31,7 +30,7 @@ export default async function handler(req, res) {
     });
 
     const text = await response.text();
-    
+
     if (response.ok) {
       return res.status(200).json({ success: true });
     } else {
