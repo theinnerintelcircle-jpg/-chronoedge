@@ -1085,10 +1085,18 @@
       document.getElementById('email-input').style.borderColor = '#C0392B';
       return;
     }
-    document.getElementById('email-input').style.borderColor = '';
-    document.getElementById('success-msg').style.display = 'block';
-    document.getElementById('email-input').value = '';
-    console.log('Waitlist signup:', email);
+    fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      }).then(() => {
+        document.getElementById('email-input').style.borderColor = '';
+        document.getElementById('success-msg').style.display = 'block';
+        document.getElementById('email-input').value = '';
+      });
+    
+    
+ 
   }
 
   function handleSignup2() {
