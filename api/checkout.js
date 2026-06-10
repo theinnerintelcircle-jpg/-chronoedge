@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     });
 
     const session = await response.json();
+    console.log('Stripe response:', JSON.stringify(session));
 
     if (session.url) {
       return res.status(200).json({ url: session.url });
