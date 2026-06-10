@@ -1038,7 +1038,7 @@
         <li class="included">Telegram + email + push</li>
         <li class="included">Advanced filters</li>
       </ul>
-      <a href="#waitlist" class="pricing-btn">JOIN WAITLIST</a>
+      <a href="#" class="pricing-btn" onclick="startCheckout('premium'); return false;">GET STARTED</a>
     </div>
     <div class="pricing-card">
       <div class="pricing-plan">DEALER</div>
@@ -1052,7 +1052,7 @@
         <li class="included">Team accounts (3 seats)</li>
         <li class="included">Dedicated support</li>
       </ul>
-      <a href="#waitlist" class="pricing-btn">JOIN WAITLIST</a>
+      <a href="#" class="pricing-btn" onclick="startCheckout('dealer'); return false;">GET STARTED</a>
     </div>
   </div>
 </section>
@@ -1098,7 +1098,19 @@
     
  
   }
-
+async function startCheckout(plan) {
+  const response = await fetch('/api/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan })
+  });
+  const data = await response.json();
+  if (data.url) {
+    window.location.href = data.url;
+  } else {
+    alert('Something went wrong. Please try again.');
+  }
+}
   function handleSignup2() {
     const email = document.getElementById('email-input-2').value;
     if (!email || !email.includes('@')) {
