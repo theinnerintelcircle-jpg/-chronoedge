@@ -1,23 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
-
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID;
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET;
 
 const WATCH_SEARCHES = [
-  { brand: 'Rolex', queries: ['Rolex Submariner', 'Rolex Datejust', 'Rolex GMT Master', 'Rolex Daytona', 'Rolex Explorer'] },
-  { brand: 'Omega', queries: ['Omega Speedmaster', 'Omega Seamaster', 'Omega Aqua Terra'] },
-  { brand: 'Tudor', queries: ['Tudor Black Bay', 'Tudor Pelagos'] },
-  { brand: 'Patek Philippe', queries: ['Patek Philippe Nautilus', 'Patek Philippe Calatrava'] },
+  { brand: 'Rolex', queries: ['Rolex Submariner', 'Rolex Datejust', 'Rolex GMT Master', 'Rolex Daytona'] },
+  { brand: 'Omega', queries: ['Omega Speedmaster', 'Omega Seamaster'] },
+  { brand: 'Tudor', queries: ['Tudor Black Bay'] },
+  { brand: 'Patek Philippe', queries: ['Patek Philippe Nautilus'] },
   { brand: 'Audemars Piguet', queries: ['Audemars Piguet Royal Oak'] },
-  { brand: 'Breitling', queries: ['Breitling Navitimer', 'Breitling Superocean'] },
-  { brand: 'IWC', queries: ['IWC Portugieser', 'IWC Pilot'] },
-  { brand: 'Tag Heuer', queries: ['Tag Heuer Carrera', 'Tag Heuer Monaco'] },
-  { brand: 'Cartier', queries: ['Cartier Santos', 'Cartier Tank'] },
+  { brand: 'Breitling', queries: ['Breitling Navitimer'] },
+  { brand: 'IWC', queries: ['IWC Portugieser'] },
+  { brand: 'Tag Heuer', queries: ['Tag Heuer Carrera'] },
+  { brand: 'Cartier', queries: ['Cartier Santos'] },
   { brand: 'Grand Seiko', queries: ['Grand Seiko Spring Drive'] },
 ];
 
@@ -29,20 +24,13 @@ const MARKET_VALUES = {
   'rolex explorer': 7200,
   'omega speedmaster': 5400,
   'omega seamaster': 4200,
-  'omega aqua terra': 4800,
   'tudor black bay': 3400,
-  'tudor pelagos': 3800,
   'patek philippe nautilus': 115000,
-  'patek philippe calatrava': 28000,
   'audemars piguet royal oak': 67000,
   'breitling navitimer': 6000,
-  'breitling superocean': 3800,
   'iwc portugieser': 7800,
-  'iwc pilot': 4500,
   'tag heuer carrera': 2800,
-  'tag heuer monaco': 4200,
   'cartier santos': 6200,
-  'cartier tank': 5800,
   'grand seiko spring drive': 4600,
 };
 
@@ -65,86 +53,42 @@ async function searchEbay(token, query) {
   const params = new URLSearchParams({
     q: query,
     category_ids: '31387',
-    limit: '50',
+    limit: '20',
     sort: 'newlyListed',
-    filter: 'buyingOptions:{FIXED_PRICE|AUCTION}',
   });
-
   const response = await fetch(`https://api.ebay.com/buy/browse/v1/item_summary/search?${params}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'X-EBAY-C-MARKETPLACE-ID': 'EBAY_GB',
     },
   });
-
   const data = await response.json();
   return data.itemSummaries || [];
 }
 
 function getMarketValue(title) {
-  const titleLower = title.toLowerCase();
+  const t = title.toLowerCase();
   for (const [key, value] of Object.entries(MARKET_VALUES)) {
-    if (titleLower.includes(key)) return value;
+    if (t.includes(key)) return value;
   }
   return null;
 }
 
-function parseListing(item, brand) {
-  const price = parseFloat(item.price?.value || 0);
-  const currency = item.price?.currency || 'GBP';
-  let priceGbp = price;
-  if (currency === 'USD') priceGbp = price * 0.79;
-  if (currency === 'EUR') priceGbp = price * 0.85;
-
-  const marketValue = getMarketValue(item.title || '');
-  let discountPct = null;
-  let spread = null;
-  let isDeal = false;
-  let isHot = false;
-
-  if (marketValue && priceGbp > 0) {
-    discountPct = Math.round(((marketValue - priceGbp) / marketValue) * 1000) / 10;
-    spread = Math.round(marketValue - priceGbp);
-    isDeal = discountPct >= 8;
-    isHot = discountPct >= 15;
-  }
-
-  const conditionMap = { 'NEW': 'Unworn', 'LIKE_NEW': 'Excellent', 'VERY_GOOD': 'Good', 'GOOD': 'Good', 'ACCEPTABLE': 'Fair' };
-
-  return {
-    source: 'ebay',
-    external_id: item.itemId,
-    listing_url: item.itemWebUrl,
-    brand_name: brand,
-    title: item.title,
-    price: price,
-    currency: currency,
-    price_gbp: priceGbp,
-    market_value: marketValue,
-    discount_pct: discountPct,
-    spread: spread,
-    is_deal: isDeal,
-    is_hot: isHot,
-    condition: conditionMap[item.condition] || item.conditionDisplayName || 'Unknown',
-    seller_name: item.seller?.username || null,
-    seller_rating: item.seller?.feedbackPercentage ? parseFloat(item.seller.feedbackPercentage) : null,
-    seller_type: (item.seller?.feedbackScore || 0) > 100 ? 'dealer' : 'private',
-    listing_type: item.buyingOptions?.includes('FIXED_PRICE') ? 'Buy It Now' : 'Auction',
-    location: item.itemLocation?.city || item.itemLocation?.stateOrProvince || null,
-    country: item.itemLocation?.country || null,
-    image_urls: item.thumbnailImages?.map(img => img.imageUrl) || (item.image?.imageUrl ? [item.image.imageUrl] : []),
-    listed_at: item.itemCreationDate || null,
-    is_active: true,
-    alert_sent: false,
-    last_seen_at: new Date().toISOString(),
-  };
+async function saveListing(listing) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/listings`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates',
+    },
+    body: JSON.stringify(listing),
+  });
+  return response.ok;
 }
 
 export default async function handler(req, res) {
-  
-    
-  
-
   let totalSaved = 0;
   let totalDeals = 0;
 
@@ -156,13 +100,53 @@ export default async function handler(req, res) {
         try {
           const items = await searchEbay(token, query);
           for (const item of items) {
-            const listing = parseListing(item, brandSearch.brand);
-            const { error } = await supabase
-              .from('listings')
-              .upsert(listing, { onConflict: 'source,external_id' });
-            if (!error) {
+            const price = parseFloat(item.price?.value || 0);
+            const currency = item.price?.currency || 'GBP';
+            let priceGbp = price;
+            if (currency === 'USD') priceGbp = price * 0.79;
+            if (currency === 'EUR') priceGbp = price * 0.85;
+
+            const marketValue = getMarketValue(item.title || '');
+            let discountPct = null;
+            let spread = null;
+            let isDeal = false;
+            let isHot = false;
+
+            if (marketValue && priceGbp > 0) {
+              discountPct = Math.round(((marketValue - priceGbp) / marketValue) * 1000) / 10;
+              spread = Math.round(marketValue - priceGbp);
+              isDeal = discountPct >= 8;
+              isHot = discountPct >= 15;
+            }
+
+            const listing = {
+              source: 'ebay',
+              external_id: item.itemId,
+              listing_url: item.itemWebUrl,
+              brand_name: brandSearch.brand,
+              title: item.title,
+              price: price,
+              currency: currency,
+              price_gbp: priceGbp,
+              market_value: marketValue,
+              discount_pct: discountPct,
+              spread: spread,
+              is_deal: isDeal,
+              is_hot: isHot,
+              condition: item.conditionDisplayName || 'Unknown',
+              seller_name: item.seller?.username || null,
+              seller_rating: item.seller?.feedbackPercentage ? parseFloat(item.seller.feedbackPercentage) : null,
+              listing_type: item.buyingOptions?.includes('FIXED_PRICE') ? 'Buy It Now' : 'Auction',
+              location: item.itemLocation?.city || null,
+              country: item.itemLocation?.country || null,
+              is_active: true,
+              alert_sent: false,
+            };
+
+            const saved = await saveListing(listing);
+            if (saved) {
               totalSaved++;
-              if (listing.is_deal) totalDeals++;
+              if (isDeal) totalDeals++;
             }
           }
           await new Promise(r => setTimeout(r, 300));
