@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
   try {
-    const res2 = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,17 +22,20 @@ export default async function handler(req, res) {
         'Prefer': 'resolution=ignore-duplicates'
       },
       body: JSON.stringify({
+        id: crypto.randomUUID(),
         email: email,
         plan: 'waitlist',
-        created_at: new Date().toISOString()
+        alert_email: true,
+        alert_push: false
       })
     });
 
-    if (res2.ok) {
+    const text = await response.text();
+    
+    if (response.ok) {
       return res.status(200).json({ success: true });
     } else {
-      const err = await res2.text();
-      return res.status(500).json({ error: 'Failed to save', details: err });
+      return res.status(500).json({ error: 'Failed to save', details: text });
     }
   } catch (err) {
     return res.status(500).json({ error: err.message });
