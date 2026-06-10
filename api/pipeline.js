@@ -27,7 +27,6 @@ export default async function handler(req, res) {
   };
 
   try {
-    // Step 1: Get eBay token
     const tokenRes = await fetch('https://api.ebay.com/identity/v1/oauth2/token', {
       method: 'POST',
       headers: {
@@ -48,7 +47,6 @@ export default async function handler(req, res) {
     let totalDeals = 0;
     const allListings = [];
 
-    // Step 2: Search eBay for each watch brand
     for (const [watchName, marketValue] of Object.entries(marketValues)) {
       const searchRes = await fetch(
         `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(watchName)}&category_ids=31387&marketplace_id=EBAY_GB&limit=20`,
@@ -75,19 +73,22 @@ export default async function handler(req, res) {
           external_id: item.itemId,
           source: 'ebay_gb',
           title: item.title,
-          brand: watchName.split(' ')[0],
+          brand_name: watchName.split(' ')[0],
           model: watchName,
           price: price,
           currency: item.price?.currency || 'GBP',
+          price_gbp: price,
           market_value: marketValue,
-          discount_percent: Math.round(discount * 10) / 10,
+          discount_pct: Math.round(discount * 10) / 10,
           is_deal: isDeal,
-          is_hot_deal: isHotDeal,
-          url: item.itemWebUrl,
-          image_url: item.image?.imageUrl || null,
+          is_hot: isHotDeal,
+          is_active: true,
+          listing_url: item.itemWebUrl,
+          image_urls: item.image?.imageUrl ? [item.image.imageUrl] : [],
           condition: item.condition || 'Unknown',
-          location: item.itemLocation?.country || 'GB',
-          scraped_at: new Date().toISOString()
+          country: item.itemLocation?.country || 'GB',
+          first_seen_at: new Date().toISOString(),
+          last_seen_at: new Date().toISOString()
         };
 
         allListings.push(listing);
@@ -95,7 +96,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Step 3: Save to Supabase
     if (allListings.length > 0) {
       const upsertRes = await fetch(`${SUPABASE_URL}/rest/v1/listings`, {
         method: 'POST',
