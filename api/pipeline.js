@@ -141,9 +141,9 @@ function parseListing(item, brand) {
 }
 
 export default async function handler(req, res) {
-  if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorised' });
-  }
+  
+    
+  
 
   let totalSaved = 0;
   let totalDeals = 0;
