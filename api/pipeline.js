@@ -236,7 +236,8 @@ async function updateMarketValues(token) {
           apikey: process.env.SUPABASE_SERVICE_KEY,
           Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
           'Content-Type': 'application/json',
-          Prefer: 'resolution=merge-duplicates',
+          Prefer: 'resolution=merge-duplicates,return=minimal',
+'on-conflict': 'source,external_id',
         },
         body: JSON.stringify({
           reference_number: refKey,
