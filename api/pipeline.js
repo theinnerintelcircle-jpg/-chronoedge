@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   try {
     const token = await getEbayToken();
 
-    // Update market values from real sold listings (runs every time)
+    // Update market values from real sold listings
     await updateMarketValues(token);
 
     // Fetch live market values from Supabase
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     const allListings = await scrapeAllWatches(token, marketValues);
 
     // Save to Supabase
-    const { saved, deals } = await saveToSupabase(allListings);
+    const { saved, deals, supabaseError } = await saveToSupabase(allListings);
 
     // Trigger Telegram alerts
     await fetch(`https://www.chronoedge.net/api/notify?secret=${process.env.CRON_SECRET}`);
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
       totalDeals: deals,
       totalFound: allListings.length,
       firstItem: allListings[0] || null,
+      supabaseError: supabaseError || null,
       message: `Saved ${saved} listings, found ${deals} deals`
     });
   } catch (err) {
@@ -67,7 +68,6 @@ async function getEbayToken() {
 
 // ============================================================
 // HARDCODED FALLBACK VALUES (GBP) — June 2026
-// Used if no sold data exists yet for a reference
 // ============================================================
 
 const FALLBACK_VALUES = {
@@ -119,7 +119,7 @@ const FALLBACK_VALUES = {
 };
 
 // ============================================================
-// SEARCH QUERIES — Reference numbers only
+// SEARCH QUERIES
 // ============================================================
 
 const SEARCH_QUERIES = [
@@ -172,26 +172,16 @@ const SEARCH_QUERIES = [
 
 // ============================================================
 // FAKE / SUSPICIOUS LISTING FILTER
-// Silently removes dodgy listings before they reach subscribers
 // ============================================================
 
 function isSuspicious(item, price, marketValue) {
   const title = (item.title || '').toLowerCase();
-
-  // Price too far below market — likely fake or broken
   if (marketValue > 0 && price < marketValue * 0.35) return true;
-
-  // Suspiciously low price for a luxury watch
   if (price < 800) return true;
-
-  // Fake/replica keywords in title
   const fakeKeywords = ['inspired', 'homage', 'rep ', 'replica', 'grade', 'aaa', 'clone', 'copy', 'fake', 'imitation', 'lookalike'];
   if (fakeKeywords.some(kw => title.includes(kw))) return true;
-
-  // Misspelled brand names
   const misspellings = ['roiex', 'rollex', 'pattek', 'audemar ', 'richrd mille'];
   if (misspellings.some(kw => title.includes(kw))) return true;
-
   return false;
 }
 
@@ -204,7 +194,6 @@ async function updateMarketValues(token) {
 
   for (const refKey of Object.keys(FALLBACK_VALUES)) {
     try {
-      // Search for completed/sold listings using buyingOptions filter
       const params = new URLSearchParams({
         q: refKey,
         category_ids: '31387',
@@ -225,10 +214,8 @@ async function updateMarketValues(token) {
 
       const data = await response.json();
       const items = data.itemSummaries || [];
-
       if (items.length < 3) continue;
 
-      // Extract valid prices
       const prices = items
         .map(item => parseFloat(item.price?.value || 0))
         .filter(p => p > 500)
@@ -236,17 +223,13 @@ async function updateMarketValues(token) {
 
       if (prices.length < 3) continue;
 
-      // Calculate median
       const mid = Math.floor(prices.length / 2);
       const median = prices.length % 2 === 0
         ? (prices[mid - 1] + prices[mid]) / 2
         : prices[mid];
 
       const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-      const min = prices[0];
-      const max = prices[prices.length - 1];
 
-      // Save to Supabase market_values table
       await fetch(`${process.env.SUPABASE_URL}/rest/v1/market_values`, {
         method: 'POST',
         headers: {
@@ -261,14 +244,14 @@ async function updateMarketValues(token) {
           model_name: FALLBACK_VALUES[refKey]?.name || refKey,
           median_sold_price: Math.round(median),
           avg_sold_price: Math.round(avg),
-          min_sold_price: Math.round(min),
-          max_sold_price: Math.round(max),
+          min_sold_price: Math.round(prices[0]),
+          max_sold_price: Math.round(prices[prices.length - 1]),
           sample_size: prices.length,
           last_updated: new Date().toISOString(),
         }),
       });
 
-      console.log(`Market value updated: ${refKey} → £${Math.round(median)} median (${prices.length} samples)`);
+      console.log(`Market value updated: ${refKey} -> £${Math.round(median)} median`);
       await new Promise(r => setTimeout(r, 200));
 
     } catch (err) {
@@ -294,13 +277,11 @@ async function getMarketValues() {
 
   const data = await response.json();
   const map = {};
-
   if (Array.isArray(data)) {
     for (const row of data) {
       map[row.reference_number] = row.median_sold_price;
     }
   }
-
   return map;
 }
 
@@ -352,14 +333,11 @@ async function scrapeAllWatches(token, marketValues) {
         if (price < 500) continue;
 
         const fallback = FALLBACK_VALUES[searchConfig.refKey];
-
-        // Use real market value from Supabase, fall back to hardcoded if not available
         const marketValue = marketValues[searchConfig.refKey] || fallback?.value || 0;
         const hotThreshold = fallback?.hotThreshold || marketValue * 0.85;
 
-        // Silent fake filter — skip suspicious listings entirely
         if (isSuspicious(item, price, marketValue)) {
-          console.log(`Filtered suspicious listing: ${item.title} at £${price}`);
+          console.log(`Filtered: ${item.title} at £${price}`);
           continue;
         }
 
@@ -413,11 +391,12 @@ async function scrapeAllWatches(token, marketValues) {
 // ============================================================
 
 async function saveToSupabase(listings) {
-  if (listings.length === 0) return { saved: 0, deals: 0 };
+  if (listings.length === 0) return { saved: 0, deals: 0, supabaseError: null };
 
   const batchSize = 50;
   let totalSaved = 0;
   let totalDeals = 0;
+  let lastError = null;
 
   for (let i = 0; i < listings.length; i += batchSize) {
     const batch = listings.slice(i, i + batchSize);
@@ -441,10 +420,11 @@ async function saveToSupabase(listings) {
       totalDeals += batch.filter(l => l.is_deal || l.is_hot).length;
       console.log(`Supabase batch saved: ${batch.length}`);
     } else {
-      const err = await response.text();
-      console.error(`Supabase batch error: ${err}`);
+      lastError = await response.text();
+      console.error(`Supabase batch error: ${lastError}`);
+      break;
     }
   }
 
-  return { saved: totalSaved, deals: totalDeals };
+  return { saved: totalSaved, deals: totalDeals, supabaseError: lastError };
 }
