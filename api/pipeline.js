@@ -403,7 +403,7 @@ async function saveToSupabase(listings) {
     const batch = listings.slice(i, i + batchSize);
 
     const response = await fetch(
-      `${process.env.SUPABASE_URL}/rest/v1/listings`,
+      `${process.env.SUPABASE_URL}/rest/v1/listings?on_conflict=source,external_id`,
       {
         method: 'POST',
         headers: {
