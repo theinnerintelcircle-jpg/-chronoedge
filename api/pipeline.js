@@ -318,18 +318,14 @@ async function saveToSupabase(listings) {
       }
     );
 
-    if (response.ok) {
-      totalSaved += batch.length;
-      console.log(`Supabase batch saved: ${batch.length}`);
-    } else {
-      const err = await response.text();
-      console.error('Supabase batch error:', err);
-      totalDeals += batch.filter(l => l.is_deal || l.is_hot_deal).length;
-    } else {
-      const err = await response.text();
-      console.error('Supabase batch error:', err);
-    }
-  }
+  if (response.ok) {
+          totalSaved += batch.length;
+          totalDeals += batch.filter(l => l.is_deal || l.is_hot_deal).length;
+          console.log(`Supabase batch saved: ${batch.length}`);
+        } else {
+          const err = await response.text();
+          console.error('Supabase batch error:', err);
+        }  
 
   return { saved: totalSaved, deals: totalDeals };
 }
