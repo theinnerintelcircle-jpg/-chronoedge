@@ -1,6 +1,6 @@
 // ============================================================
 // ChronoEdge Pipeline — Updated June 2026
-// Full watch list with reference numbers + 2026 market values
+// Reference number searches ONLY — no vintage results
 // ============================================================
 
 export default async function handler(req, res) {
@@ -128,75 +128,77 @@ const MARKET_VALUES = {
 };
 
 // ============================================================
-// SEARCH QUERIES
+// SEARCH QUERIES — Reference numbers ONLY
+// No generic keyword searches to avoid vintage results
 // ============================================================
 
 const SEARCH_QUERIES = [
-  // ROLEX GMT — HIGH PRIORITY (Pepsi discontinued)
-  { query: '126710BLRO Rolex GMT Pepsi',              brand: 'Rolex', refKey: '126710BLRO',       priority: 'HIGH'   },
-  { query: 'Rolex GMT Master Pepsi red blue bezel',   brand: 'Rolex', refKey: '126710BLRO',       priority: 'HIGH'   },
-  { query: '126710BLNR Rolex GMT Batman',             brand: 'Rolex', refKey: '126710BLNR',       priority: 'NORMAL' },
-  { query: 'Rolex GMT Batman blue black bezel',       brand: 'Rolex', refKey: '126710BLNR',       priority: 'NORMAL' },
-  { query: '126711CHNR Rolex GMT Root Beer',          brand: 'Rolex', refKey: '126711CHNR',       priority: 'NORMAL' },
-  { query: '126715CHNR Rolex GMT Everose Root Beer',  brand: 'Rolex', refKey: '126715CHNR',       priority: 'NORMAL' },
+  // ROLEX GMT-MASTER II
+  { query: '126710BLRO',  brand: 'Rolex', refKey: '126710BLRO',  priority: 'HIGH'   },
+  { query: '126710BLNR',  brand: 'Rolex', refKey: '126710BLNR',  priority: 'NORMAL' },
+  { query: '126711CHNR',  brand: 'Rolex', refKey: '126711CHNR',  priority: 'NORMAL' },
+  { query: '126715CHNR',  brand: 'Rolex', refKey: '126715CHNR',  priority: 'NORMAL' },
 
   // ROLEX SUBMARINER
-  { query: '126610LN Rolex Submariner black date',    brand: 'Rolex', refKey: '126610LN',         priority: 'NORMAL' },
-  { query: '126610LV Rolex Submariner Starbucks',     brand: 'Rolex', refKey: '126610LV',         priority: 'NORMAL' },
-  { query: '124060 Rolex Submariner no date',         brand: 'Rolex', refKey: '124060',           priority: 'NORMAL' },
-  { query: '126613LB Rolex Submariner Bluesy',        brand: 'Rolex', refKey: '126613LB',         priority: 'NORMAL' },
-  { query: '126613LN Rolex Submariner two tone',      brand: 'Rolex', refKey: '126613LN',         priority: 'NORMAL' },
+  { query: '126610LN',    brand: 'Rolex', refKey: '126610LN',    priority: 'NORMAL' },
+  { query: '126610LV',    brand: 'Rolex', refKey: '126610LV',    priority: 'NORMAL' },
+  { query: '124060',      brand: 'Rolex', refKey: '124060',      priority: 'NORMAL' },
+  { query: '126613LB',    brand: 'Rolex', refKey: '126613LB',    priority: 'NORMAL' },
+  { query: '126613LN',    brand: 'Rolex', refKey: '126613LN',    priority: 'NORMAL' },
 
   // ROLEX DAYTONA
-  { query: '126500LN Rolex Daytona white panda',      brand: 'Rolex', refKey: '126500LN-panda',   priority: 'NORMAL' },
-  { query: '126500LN Rolex Daytona black ceramic',    brand: 'Rolex', refKey: '126500LN-black',   priority: 'NORMAL' },
-  { query: '116500LN Rolex Daytona panda',            brand: 'Rolex', refKey: '116500LN',         priority: 'NORMAL' },
-  { query: '126515LN Rolex Daytona Everose',          brand: 'Rolex', refKey: '126515LN',         priority: 'NORMAL' },
-  { query: '126508 Rolex Daytona yellow gold',        brand: 'Rolex', refKey: '126508',           priority: 'NORMAL' },
+  { query: '126500LN white panda dial',  brand: 'Rolex', refKey: '126500LN-panda', priority: 'NORMAL' },
+  { query: '126500LN black dial',        brand: 'Rolex', refKey: '126500LN-black', priority: 'NORMAL' },
+  { query: '116500LN',    brand: 'Rolex', refKey: '116500LN',    priority: 'NORMAL' },
+  { query: '126515LN',    brand: 'Rolex', refKey: '126515LN',    priority: 'NORMAL' },
+  { query: '126519LN',    brand: 'Rolex', refKey: '126519LN',    priority: 'NORMAL' },
+  { query: '126508',      brand: 'Rolex', refKey: '126508',      priority: 'NORMAL' },
+  { query: '126509',      brand: 'Rolex', refKey: '126509',      priority: 'NORMAL' },
 
   // ROLEX DAY-DATE 40
-  { query: '228235 Rolex Day-Date olive green',       brand: 'Rolex', refKey: '228235-olive',     priority: 'NORMAL' },
-  { query: '228235 Rolex Day-Date chocolate',         brand: 'Rolex', refKey: '228235-chocolate', priority: 'NORMAL' },
-  { query: '228235 Rolex Day-Date green rose gold',   brand: 'Rolex', refKey: '228235-green',     priority: 'NORMAL' },
-  { query: '228238 Rolex Day-Date yellow gold',       brand: 'Rolex', refKey: '228238',           priority: 'NORMAL' },
-  { query: '228206 Rolex Day-Date ice blue platinum', brand: 'Rolex', refKey: '228206',           priority: 'NORMAL' },
+  { query: '228235 olive green',   brand: 'Rolex', refKey: '228235-olive',     priority: 'NORMAL' },
+  { query: '228235 chocolate',     brand: 'Rolex', refKey: '228235-chocolate', priority: 'NORMAL' },
+  { query: '228235 green',         brand: 'Rolex', refKey: '228235-green',     priority: 'NORMAL' },
+  { query: '228238',               brand: 'Rolex', refKey: '228238',           priority: 'NORMAL' },
+  { query: '228206',               brand: 'Rolex', refKey: '228206',           priority: 'NORMAL' },
 
   // ROLEX DATEJUST 41
-  { query: '126334 Rolex Datejust 41 mint green',     brand: 'Rolex', refKey: '126334-mint',      priority: 'NORMAL' },
-  { query: '126334 Rolex Datejust 41 blue jubilee',   brand: 'Rolex', refKey: '126334-blue',      priority: 'NORMAL' },
-  { query: '126334 Rolex Datejust 41 wimbledon',      brand: 'Rolex', refKey: '126334-wimbledon', priority: 'NORMAL' },
-  { query: '126334 Rolex Datejust 41 black dial',     brand: 'Rolex', refKey: '126334-black',     priority: 'NORMAL' },
+  { query: '126334 mint green',    brand: 'Rolex', refKey: '126334-mint',      priority: 'NORMAL' },
+  { query: '126334 blue',          brand: 'Rolex', refKey: '126334-blue',      priority: 'NORMAL' },
+  { query: '126334 wimbledon',     brand: 'Rolex', refKey: '126334-wimbledon', priority: 'NORMAL' },
+  { query: '126334 black',         brand: 'Rolex', refKey: '126334-black',     priority: 'NORMAL' },
+  { query: '126300',               brand: 'Rolex', refKey: '126300',           priority: 'NORMAL' },
 
   // ROLEX DATEJUST 36
-  { query: '126234 Rolex Datejust 36 mint green',     brand: 'Rolex', refKey: '126234-mint',      priority: 'NORMAL' },
-  { query: '126234 Rolex Datejust 36 wimbledon',      brand: 'Rolex', refKey: '126234-wimbledon', priority: 'NORMAL' },
-  { query: '126234 Rolex Datejust 36 blue fluted',    brand: 'Rolex', refKey: '126234-blue',      priority: 'NORMAL' },
+  { query: '126234 mint green',    brand: 'Rolex', refKey: '126234-mint',      priority: 'NORMAL' },
+  { query: '126234 wimbledon',     brand: 'Rolex', refKey: '126234-wimbledon', priority: 'NORMAL' },
+  { query: '126234 blue',          brand: 'Rolex', refKey: '126234-blue',      priority: 'NORMAL' },
+  { query: '126200',               brand: 'Rolex', refKey: '126200',           priority: 'NORMAL' },
 
   // ROLEX SKY-DWELLER
-  { query: '336934 Rolex Sky-Dweller blue jubilee',   brand: 'Rolex', refKey: '336934-blue',      priority: 'NORMAL' },
-  { query: '336934 Rolex Sky-Dweller green jubilee',  brand: 'Rolex', refKey: '336934-green',     priority: 'NORMAL' },
+  { query: '336934 blue',          brand: 'Rolex', refKey: '336934-blue',      priority: 'NORMAL' },
+  { query: '336934 green',         brand: 'Rolex', refKey: '336934-green',     priority: 'NORMAL' },
 
   // PATEK PHILIPPE
-  { query: '5711 Patek Philippe Nautilus steel',      brand: 'Patek Philippe', refKey: '5711/1A', priority: 'HIGH'   },
-  { query: '5811 Patek Philippe Nautilus white gold', brand: 'Patek Philippe', refKey: '5811/1G', priority: 'HIGH'   },
-  { query: '5167A Patek Aquanaut steel',              brand: 'Patek Philippe', refKey: '5167A',   priority: 'NORMAL' },
-  { query: '5164A Patek Aquanaut travel time',        brand: 'Patek Philippe', refKey: '5164A',   priority: 'NORMAL' },
+  { query: '5711/1A',              brand: 'Patek Philippe', refKey: '5711/1A', priority: 'HIGH'   },
+  { query: '5811/1G',              brand: 'Patek Philippe', refKey: '5811/1G', priority: 'HIGH'   },
+  { query: '5167A',                brand: 'Patek Philippe', refKey: '5167A',   priority: 'NORMAL' },
+  { query: '5164A',                brand: 'Patek Philippe', refKey: '5164A',   priority: 'NORMAL' },
 
   // AUDEMARS PIGUET
-  { query: '15500ST Audemars Piguet Royal Oak',       brand: 'Audemars Piguet', refKey: '15500ST', priority: 'NORMAL' },
-  { query: '16202ST AP Royal Oak extra thin',         brand: 'Audemars Piguet', refKey: '16202ST', priority: 'HIGH'   },
-  { query: '26240ST AP Royal Oak chronograph',        brand: 'Audemars Piguet', refKey: '26240ST', priority: 'NORMAL' },
+  { query: '15500ST',              brand: 'Audemars Piguet', refKey: '15500ST', priority: 'NORMAL' },
+  { query: '16202ST',              brand: 'Audemars Piguet', refKey: '16202ST', priority: 'HIGH'   },
+  { query: '26240ST',              brand: 'Audemars Piguet', refKey: '26240ST', priority: 'NORMAL' },
 
   // RICHARD MILLE
-  { query: 'Richard Mille RM 011 flyback',            brand: 'Richard Mille', refKey: 'RM 011',   priority: 'NORMAL' },
-  { query: 'Richard Mille RM 035',                    brand: 'Richard Mille', refKey: 'RM 035',   priority: 'NORMAL' },
-  { query: 'Richard Mille RM 055',                    brand: 'Richard Mille', refKey: 'RM 055',   priority: 'NORMAL' },
-  { query: 'Richard Mille RM 65-01',                  brand: 'Richard Mille', refKey: 'RM 65-01', priority: 'NORMAL' },
+  { query: 'Richard Mille RM 011', brand: 'Richard Mille', refKey: 'RM 011',   priority: 'NORMAL' },
+  { query: 'Richard Mille RM 035', brand: 'Richard Mille', refKey: 'RM 035',   priority: 'NORMAL' },
+  { query: 'Richard Mille RM 055', brand: 'Richard Mille', refKey: 'RM 055',   priority: 'NORMAL' },
+  { query: 'Richard Mille RM 65-01', brand: 'Richard Mille', refKey: 'RM 65-01', priority: 'NORMAL' },
 
   // CARTIER
-  { query: 'WSSA0029 Cartier Santos medium',          brand: 'Cartier', refKey: 'WSSA0029', priority: 'NORMAL' },
-  { query: 'WSSA0018 Cartier Santos large',           brand: 'Cartier', refKey: 'WSSA0018', priority: 'NORMAL' },
-  { query: 'Cartier Santos Dumont steel',             brand: 'Cartier', refKey: 'WSSA0018', priority: 'NORMAL' },
+  { query: 'WSSA0029',             brand: 'Cartier', refKey: 'WSSA0029', priority: 'NORMAL' },
+  { query: 'WSSA0018',             brand: 'Cartier', refKey: 'WSSA0018', priority: 'NORMAL' },
 ];
 
 // ============================================================
