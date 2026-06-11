@@ -17,6 +17,8 @@ export default async function handler(req, res) {
       success: true,
       totalSaved: saved,
       totalDeals: deals,
+      totalFound: allListings.length,
+      firstItem: allListings[0] || null,
       message: `Saved ${saved} listings, found ${deals} deals`
     });
   } catch (err) {
@@ -106,9 +108,9 @@ const MARKET_VALUES = {
   '5164A':            { name: 'Patek Aquanaut Travel Time',     value: 52000, discontinued: false, hotThreshold: 45000 },
 
   // AUDEMARS PIGUET
-  '15500ST':          { name: 'AP Royal Oak 15500ST',              value: 38000, discontinued: false, hotThreshold: 33000 },
-  '16202ST':          { name: 'AP Royal Oak Extra-Thin 16202ST',   value: 62000, discontinued: false, hotThreshold: 54000 },
-  '26240ST':          { name: 'AP Royal Oak Chronograph 26240ST',  value: 48000, discontinued: false, hotThreshold: 42000 },
+  '15500ST':          { name: 'AP Royal Oak 15500ST',             value: 38000, discontinued: false, hotThreshold: 33000 },
+  '16202ST':          { name: 'AP Royal Oak Extra-Thin 16202ST',  value: 62000, discontinued: false, hotThreshold: 54000 },
+  '26240ST':          { name: 'AP Royal Oak Chronograph 26240ST', value: 48000, discontinued: false, hotThreshold: 42000 },
 
   // RICHARD MILLE
   'RM 011':           { name: 'Richard Mille RM 011',   value: 120000, discontinued: false, hotThreshold: 104000 },
@@ -231,7 +233,7 @@ async function scrapeAllWatches(token) {
   for (const searchConfig of SEARCH_QUERIES) {
     try {
       const items = await searchEbay(token, searchConfig.query);
-      console.log(`Query: "${searchConfig.query}" → ${items.length} results`);
+      console.log(`Query: "${searchConfig.query}" -> ${items.length} results`);
 
       for (const item of items) {
         if (seen.has(item.itemId)) continue;
@@ -277,7 +279,7 @@ async function scrapeAllWatches(token) {
       await new Promise(r => setTimeout(r, 300));
 
     } catch (err) {
-      console.error(`Search failed for "${searchConfig.query}":`, err.message);
+      console.error(`Search failed for "${searchConfig.query}": ${err.message}`);
     }
   }
 
@@ -318,7 +320,7 @@ async function saveToSupabase(listings) {
       console.log(`Supabase batch saved: ${batch.length}`);
     } else {
       const err = await response.text();
-      console.error('Supabase batch error:', err);
+      console.error(`Supabase batch error: ${err}`);
     }
   }
 
