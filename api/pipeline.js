@@ -69,13 +69,13 @@ const MARKET_VALUES = {
   '126613LN':         { name: 'Rolex Submariner Two-Tone',    value: 15000, discontinued: false, hotThreshold: 13000 },
 
   // ROLEX DAYTONA
-  '126500LN-panda':   { name: 'Rolex Daytona Panda',          value: 20000, discontinued: false, hotThreshold: 17000 },
-  '126500LN-black':   { name: 'Rolex Daytona Black',          value: 18500, discontinued: false, hotThreshold: 16000 },
-  '116500LN':         { name: 'Rolex Daytona 116500LN',       value: 19000, discontinued: false, hotThreshold: 16500 },
+  '126500LN-panda':   { name: 'Rolex Daytona Panda',              value: 20000, discontinued: false, hotThreshold: 17000 },
+  '126500LN-black':   { name: 'Rolex Daytona Black',              value: 18500, discontinued: false, hotThreshold: 16000 },
+  '116500LN':         { name: 'Rolex Daytona 116500LN',           value: 19000, discontinued: false, hotThreshold: 16500 },
   '126515LN':         { name: 'Rolex Daytona Everose Oysterflex', value: 32000, discontinued: false, hotThreshold: 28000 },
   '126519LN':         { name: 'Rolex Daytona White Gold Oysterflex', value: 45000, discontinued: false, hotThreshold: 40000 },
-  '126508':           { name: 'Rolex Daytona Yellow Gold',    value: 55000, discontinued: false, hotThreshold: 48000 },
-  '126509':           { name: 'Rolex Daytona White Gold',     value: 52000, discontinued: false, hotThreshold: 45000 },
+  '126508':           { name: 'Rolex Daytona Yellow Gold',         value: 55000, discontinued: false, hotThreshold: 48000 },
+  '126509':           { name: 'Rolex Daytona White Gold',          value: 52000, discontinued: false, hotThreshold: 45000 },
 
   // ROLEX DAY-DATE 40
   '228238':           { name: 'Rolex Day-Date 40 Yellow Gold',       value: 38000, discontinued: false, hotThreshold: 33000 },
@@ -244,35 +244,38 @@ async function scrapeAllWatches(token) {
 
         const marketData = MARKET_VALUES[searchConfig.refKey];
         const marketValue = marketData?.value || 0;
-        const discount = marketValue > 0
+        const discountPct = marketValue > 0
           ? Math.round(((marketValue - price) / marketValue) * 100)
           : 0;
 
-        const isDeal = discount >= 8;
-        const isHotDeal = price <= (marketData?.hotThreshold || 0);
+        const isDeal = discountPct >= 8;
+        const isHot = price <= (marketData?.hotThreshold || 0);
         const isDiscontinued = marketData?.discontinued || false;
-        const isPriorityAlert = isDiscontinued && isHotDeal;
+        const isPriorityAlert = isDiscontinued && isHot;
 
         allListings.push({
           external_id: item.itemId,
           source: 'ebay_uk',
-          brand: searchConfig.brand,
+          brand_name: searchConfig.brand,
           model: item.title,
+          reference_number: searchConfig.refKey,
           ref_number: searchConfig.refKey,
-          price,
+          price: price,
+          price_gbp: price,
           currency: 'GBP',
           market_value: marketValue,
-          discount_percent: discount,
-          is_deal: isDeal || isHotDeal,
-          is_hot_deal: isHotDeal,
+          discount_pct: discountPct,
+          is_deal: isDeal || isHot,
+          is_hot: isHot,
           is_priority_alert: isPriorityAlert,
           is_discontinued_model: isDiscontinued,
           search_priority: searchConfig.priority,
           listing_url: item.itemWebUrl,
-          image_url: item.image?.imageUrl || null,
+          image_urls: item.image?.imageUrl ? [item.image.imageUrl] : [],
           condition: item.condition || null,
-          seller: item.seller?.username || null,
-          scraped_at: new Date().toISOString(),
+          seller_name: item.seller?.username || null,
+          last_seen_at: new Date().toISOString(),
+          is_active: true,
         });
       }
 
@@ -316,7 +319,7 @@ async function saveToSupabase(listings) {
 
     if (response.ok) {
       totalSaved += batch.length;
-      totalDeals += batch.filter(l => l.is_deal || l.is_hot_deal).length;
+      totalDeals += batch.filter(l => l.is_deal || l.is_hot).length;
       console.log(`Supabase batch saved: ${batch.length}`);
     } else {
       const err = await response.text();
