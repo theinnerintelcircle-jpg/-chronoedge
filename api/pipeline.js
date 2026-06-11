@@ -204,14 +204,13 @@ const SEARCH_QUERIES = [
 // ============================================================
 
 async function searchEbay(token, query, maxResults = 50) {
-  const params = new URLSearchParams({
+ const params = new URLSearchParams({
     q: query,
-    category_ids: '31387', // eBay UK Wristwatches
+    category_ids: '31387',
     filter: 'buyingOptions:{FIXED_PRICE|AUCTION},conditionIds:{1000|1500|2000|2500|3000}',
     sort: 'newlyListed',
     limit: String(maxResults),
-    marketplace_id: 'EBAY_GB',
-  });
+  }); 
 
   const response = await fetch(
     `https://api.ebay.com/buy/browse/v1/item_summary/search?${params}`,
@@ -234,6 +233,7 @@ async function scrapeAllWatches(token) {
   for (const searchConfig of SEARCH_QUERIES) {
     try {
       const items = await searchEbay(token, searchConfig.query);
+      console.log(`Query: "${searchConfig.query}" → ${items.length} results`);
 
       for (const item of items) {
         if (seen.has(item.itemId)) continue;
@@ -320,6 +320,10 @@ async function saveToSupabase(listings) {
 
     if (response.ok) {
       totalSaved += batch.length;
+      console.log(`Supabase batch saved: ${batch.length}`);
+    } else {
+      const err = await response.text();
+      console.error('Supabase batch error:', err);
       totalDeals += batch.filter(l => l.is_deal || l.is_hot_deal).length;
     } else {
       const err = await response.text();
