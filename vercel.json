@@ -4,5 +4,11 @@
       "path": "/api/pipeline",
       "schedule": "0 9 * * *"
     }
+  ],
+  "routes": [
+    { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/terms", "dest": "/terms.html" },
+    { "src": "/privacy", "dest": "/privacy.html" },
+    { "src": "/contact", "dest": "/contact.html" }
   ]
 }
