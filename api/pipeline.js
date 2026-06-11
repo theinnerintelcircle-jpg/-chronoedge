@@ -13,6 +13,10 @@ export default async function handler(req, res) {
     const token = await getEbayToken();
     const allListings = await scrapeAllWatches(token);
     const { saved, deals } = await saveToSupabase(allListings);
+
+    // Trigger Telegram alerts
+    await fetch(`https://www.chronoedge.net/api/notify?secret=${process.env.CRON_SECRET}`);
+
     return res.status(200).json({
       success: true,
       totalSaved: saved,
