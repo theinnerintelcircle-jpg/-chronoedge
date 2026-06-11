@@ -2,6 +2,8 @@
 // ChronoEdge Pipeline — Updated June 2026
 // Real market values from eBay sold listings
 // Silent fake/suspicious listing filter
+// Deal threshold: 12%+ below market
+// Hot deal threshold: 15%+ below market
 // ============================================================
 
 export default async function handler(req, res) {
@@ -12,20 +14,10 @@ export default async function handler(req, res) {
 
   try {
     const token = await getEbayToken();
-
-    // Update market values from real sold listings
     await updateMarketValues(token);
-
-    // Fetch live market values from Supabase
     const marketValues = await getMarketValues();
-
-    // Scrape and score live listings
     const allListings = await scrapeAllWatches(token, marketValues);
-
-    // Save to Supabase
     const { saved, deals, supabaseError } = await saveToSupabase(allListings);
-
-    // Trigger Telegram alerts
     await fetch(`https://www.chronoedge.net/api/notify?secret=${process.env.CRON_SECRET}`);
 
     return res.status(200).json({
@@ -67,55 +59,56 @@ async function getEbayToken() {
 }
 
 // ============================================================
-// HARDCODED FALLBACK VALUES (GBP) — June 2026
+// FALLBACK VALUES — hotThreshold = 15% below market value
+// isDeal = 12%+ below market, isHot = price <= hotThreshold
 // ============================================================
 
 const FALLBACK_VALUES = {
-  '126710BLRO':       { name: 'Rolex GMT Pepsi',              value: 20000, discontinued: true,  hotThreshold: 16500 },
-  '126710BLNR':       { name: 'Rolex GMT Batman/Batgirl',     value: 15500, discontinued: false, hotThreshold: 13500 },
-  '126711CHNR':       { name: 'Rolex GMT Root Beer',          value: 18500, discontinued: false, hotThreshold: 16000 },
-  '126715CHNR':       { name: 'Rolex GMT Root Beer Everose',  value: 28000, discontinued: false, hotThreshold: 24000 },
-  '126610LN':         { name: 'Rolex Submariner Black Date',  value: 12000, discontinued: false, hotThreshold: 10500 },
-  '126610LV':         { name: 'Rolex Submariner Starbucks',   value: 13000, discontinued: false, hotThreshold: 11500 },
-  '124060':           { name: 'Rolex Submariner No Date',     value: 10500, discontinued: false, hotThreshold: 9000  },
-  '126613LB':         { name: 'Rolex Submariner Bluesy',      value: 16000, discontinued: false, hotThreshold: 14000 },
-  '126613LN':         { name: 'Rolex Submariner Two-Tone',    value: 15000, discontinued: false, hotThreshold: 13000 },
+  '126710BLRO':       { name: 'Rolex GMT Pepsi',              value: 20000, discontinued: true,  hotThreshold: 17000 },
+  '126710BLNR':       { name: 'Rolex GMT Batman/Batgirl',     value: 15500, discontinued: false, hotThreshold: 13175 },
+  '126711CHNR':       { name: 'Rolex GMT Root Beer',          value: 18500, discontinued: false, hotThreshold: 15725 },
+  '126715CHNR':       { name: 'Rolex GMT Root Beer Everose',  value: 28000, discontinued: false, hotThreshold: 23800 },
+  '126610LN':         { name: 'Rolex Submariner Black Date',  value: 12000, discontinued: false, hotThreshold: 10200 },
+  '126610LV':         { name: 'Rolex Submariner Starbucks',   value: 13000, discontinued: false, hotThreshold: 11050 },
+  '124060':           { name: 'Rolex Submariner No Date',     value: 10500, discontinued: false, hotThreshold: 8925  },
+  '126613LB':         { name: 'Rolex Submariner Bluesy',      value: 16000, discontinued: false, hotThreshold: 13600 },
+  '126613LN':         { name: 'Rolex Submariner Two-Tone',    value: 15000, discontinued: false, hotThreshold: 12750 },
   '126500LN-panda':   { name: 'Rolex Daytona Panda',          value: 20000, discontinued: false, hotThreshold: 17000 },
-  '126500LN-black':   { name: 'Rolex Daytona Black',          value: 18500, discontinued: false, hotThreshold: 16000 },
-  '116500LN':         { name: 'Rolex Daytona 116500LN',       value: 19000, discontinued: false, hotThreshold: 16500 },
-  '126515LN':         { name: 'Rolex Daytona Everose',        value: 32000, discontinued: false, hotThreshold: 28000 },
-  '126519LN':         { name: 'Rolex Daytona White Gold',     value: 45000, discontinued: false, hotThreshold: 40000 },
-  '126508':           { name: 'Rolex Daytona Yellow Gold',    value: 55000, discontinued: false, hotThreshold: 48000 },
-  '126509':           { name: 'Rolex Daytona White Gold',     value: 52000, discontinued: false, hotThreshold: 45000 },
-  '228238':           { name: 'Rolex Day-Date 40 Yellow Gold',       value: 38000, discontinued: false, hotThreshold: 33000 },
-  '228235-olive':     { name: 'Rolex Day-Date 40 Olive Everose',     value: 33000, discontinued: false, hotThreshold: 28500 },
-  '228235-chocolate': { name: 'Rolex Day-Date 40 Chocolate Everose', value: 30000, discontinued: false, hotThreshold: 26000 },
-  '228235-green':     { name: 'Rolex Day-Date 40 Green Everose',     value: 29000, discontinued: false, hotThreshold: 25000 },
-  '228206':           { name: 'Rolex Day-Date 40 Ice Blue Platinum', value: 72000, discontinued: false, hotThreshold: 62000 },
-  '126334-mint':      { name: 'Rolex Datejust 41 Mint Green',   value: 11000, discontinued: false, hotThreshold: 9500  },
-  '126334-blue':      { name: 'Rolex Datejust 41 Blue',         value: 10500, discontinued: false, hotThreshold: 9000  },
-  '126334-wimbledon': { name: 'Rolex Datejust 41 Wimbledon',    value: 13000, discontinued: false, hotThreshold: 11000 },
+  '126500LN-black':   { name: 'Rolex Daytona Black',          value: 18500, discontinued: false, hotThreshold: 15725 },
+  '116500LN':         { name: 'Rolex Daytona 116500LN',       value: 19000, discontinued: false, hotThreshold: 16150 },
+  '126515LN':         { name: 'Rolex Daytona Everose',        value: 32000, discontinued: false, hotThreshold: 27200 },
+  '126519LN':         { name: 'Rolex Daytona White Gold',     value: 45000, discontinued: false, hotThreshold: 38250 },
+  '126508':           { name: 'Rolex Daytona Yellow Gold',    value: 55000, discontinued: false, hotThreshold: 46750 },
+  '126509':           { name: 'Rolex Daytona White Gold',     value: 52000, discontinued: false, hotThreshold: 44200 },
+  '228238':           { name: 'Rolex Day-Date 40 Yellow Gold',       value: 38000, discontinued: false, hotThreshold: 32300 },
+  '228235-olive':     { name: 'Rolex Day-Date 40 Olive Everose',     value: 33000, discontinued: false, hotThreshold: 28050 },
+  '228235-chocolate': { name: 'Rolex Day-Date 40 Chocolate Everose', value: 30000, discontinued: false, hotThreshold: 25500 },
+  '228235-green':     { name: 'Rolex Day-Date 40 Green Everose',     value: 29000, discontinued: false, hotThreshold: 24650 },
+  '228206':           { name: 'Rolex Day-Date 40 Ice Blue Platinum', value: 72000, discontinued: false, hotThreshold: 61200 },
+  '126334-mint':      { name: 'Rolex Datejust 41 Mint Green',   value: 11000, discontinued: false, hotThreshold: 9350  },
+  '126334-blue':      { name: 'Rolex Datejust 41 Blue',         value: 10500, discontinued: false, hotThreshold: 8925  },
+  '126334-wimbledon': { name: 'Rolex Datejust 41 Wimbledon',    value: 13000, discontinued: false, hotThreshold: 11050 },
   '126334-black':     { name: 'Rolex Datejust 41 Black',        value: 10000, discontinued: false, hotThreshold: 8500  },
-  '126300':           { name: 'Rolex Datejust 41 Steel',        value: 9000,  discontinued: false, hotThreshold: 7500  },
+  '126300':           { name: 'Rolex Datejust 41 Steel',        value: 9000,  discontinued: false, hotThreshold: 7650  },
   '126234-mint':      { name: 'Rolex Datejust 36 Mint Green',   value: 10000, discontinued: false, hotThreshold: 8500  },
-  '126234-blue':      { name: 'Rolex Datejust 36 Blue',         value: 9500,  discontinued: false, hotThreshold: 8000  },
-  '126234-wimbledon': { name: 'Rolex Datejust 36 Wimbledon',    value: 11500, discontinued: false, hotThreshold: 9800  },
-  '126200':           { name: 'Rolex Datejust 36 Steel',        value: 8500,  discontinued: false, hotThreshold: 7200  },
-  '336934-blue':      { name: 'Rolex Sky-Dweller Blue',         value: 20000, discontinued: false, hotThreshold: 17500 },
-  '336934-green':     { name: 'Rolex Sky-Dweller Green',        value: 19000, discontinued: false, hotThreshold: 16500 },
-  '5711/1A':          { name: 'Patek Nautilus 5711',            value: 90000, discontinued: true,  hotThreshold: 78000 },
-  '5811/1G':          { name: 'Patek Nautilus 5811',            value: 95000, discontinued: false, hotThreshold: 82000 },
-  '5167A':            { name: 'Patek Aquanaut 5167A',           value: 38000, discontinued: false, hotThreshold: 33000 },
-  '5164A':            { name: 'Patek Aquanaut Travel Time',     value: 52000, discontinued: false, hotThreshold: 45000 },
-  '15500ST':          { name: 'AP Royal Oak 15500ST',           value: 38000, discontinued: false, hotThreshold: 33000 },
-  '16202ST':          { name: 'AP Royal Oak 16202ST',           value: 62000, discontinued: false, hotThreshold: 54000 },
-  '26240ST':          { name: 'AP Royal Oak Chronograph',       value: 48000, discontinued: false, hotThreshold: 42000 },
-  'RM 011':           { name: 'Richard Mille RM 011',           value: 120000, discontinued: false, hotThreshold: 104000 },
-  'RM 035':           { name: 'Richard Mille RM 035',           value: 95000,  discontinued: false, hotThreshold: 82000  },
-  'RM 055':           { name: 'Richard Mille RM 055',           value: 90000,  discontinued: false, hotThreshold: 78000  },
-  'RM 65-01':         { name: 'Richard Mille RM 65-01',         value: 180000, discontinued: false, hotThreshold: 155000 },
-  'WSSA0029':         { name: 'Cartier Santos Medium',          value: 7500,  discontinued: false, hotThreshold: 6500 },
-  'WSSA0018':         { name: 'Cartier Santos Large',           value: 8200,  discontinued: false, hotThreshold: 7100 },
+  '126234-blue':      { name: 'Rolex Datejust 36 Blue',         value: 9500,  discontinued: false, hotThreshold: 8075  },
+  '126234-wimbledon': { name: 'Rolex Datejust 36 Wimbledon',    value: 11500, discontinued: false, hotThreshold: 9775  },
+  '126200':           { name: 'Rolex Datejust 36 Steel',        value: 8500,  discontinued: false, hotThreshold: 7225  },
+  '336934-blue':      { name: 'Rolex Sky-Dweller Blue',         value: 20000, discontinued: false, hotThreshold: 17000 },
+  '336934-green':     { name: 'Rolex Sky-Dweller Green',        value: 19000, discontinued: false, hotThreshold: 16150 },
+  '5711/1A':          { name: 'Patek Nautilus 5711',            value: 90000, discontinued: true,  hotThreshold: 76500 },
+  '5811/1G':          { name: 'Patek Nautilus 5811',            value: 95000, discontinued: false, hotThreshold: 80750 },
+  '5167A':            { name: 'Patek Aquanaut 5167A',           value: 38000, discontinued: false, hotThreshold: 32300 },
+  '5164A':            { name: 'Patek Aquanaut Travel Time',     value: 52000, discontinued: false, hotThreshold: 44200 },
+  '15500ST':          { name: 'AP Royal Oak 15500ST',           value: 38000, discontinued: false, hotThreshold: 32300 },
+  '16202ST':          { name: 'AP Royal Oak 16202ST',           value: 62000, discontinued: false, hotThreshold: 52700 },
+  '26240ST':          { name: 'AP Royal Oak Chronograph',       value: 48000, discontinued: false, hotThreshold: 40800 },
+  'RM 011':           { name: 'Richard Mille RM 011',           value: 120000, discontinued: false, hotThreshold: 102000 },
+  'RM 035':           { name: 'Richard Mille RM 035',           value: 95000,  discontinued: false, hotThreshold: 80750  },
+  'RM 055':           { name: 'Richard Mille RM 055',           value: 90000,  discontinued: false, hotThreshold: 76500  },
+  'RM 65-01':         { name: 'Richard Mille RM 65-01',         value: 180000, discontinued: false, hotThreshold: 153000 },
+  'WSSA0029':         { name: 'Cartier Santos Medium',          value: 7500,  discontinued: false, hotThreshold: 6375 },
+  'WSSA0018':         { name: 'Cartier Santos Large',           value: 8200,  discontinued: false, hotThreshold: 6970 },
 };
 
 // ============================================================
@@ -176,9 +169,9 @@ const SEARCH_QUERIES = [
 
 function isSuspicious(item, price, marketValue) {
   const title = (item.title || '').toLowerCase();
-  if (marketValue > 0 && price < marketValue * 0.35) return true;
-  if (price < 800) return true;
-  const fakeKeywords = ['inspired', 'homage', 'rep ', 'replica', 'grade', 'aaa', 'clone', 'copy', 'fake', 'imitation', 'lookalike'];
+  if (marketValue > 0 && price < marketValue * 0.60) return true;
+  if (price < 1500) return true;
+  const fakeKeywords = ['inspired', 'homage', 'rep ', 'replica', 'grade', 'aaa', 'clone', 'copy', 'fake', 'imitation', 'lookalike', 'dial only', 'dial sealed', 'dial blister', 'pikachu', 'parts only', 'for parts', 'spares', 'movement only', 'case only', 'no watch'];
   if (fakeKeywords.some(kw => title.includes(kw))) return true;
   const misspellings = ['roiex', 'rollex', 'pattek', 'audemar ', 'richrd mille'];
   if (misspellings.some(kw => title.includes(kw))) return true;
@@ -191,7 +184,6 @@ function isSuspicious(item, price, marketValue) {
 
 async function updateMarketValues(token) {
   console.log('Updating market values from sold listings...');
-
   for (const refKey of Object.keys(FALLBACK_VALUES)) {
     try {
       const params = new URLSearchParams({
@@ -204,12 +196,7 @@ async function updateMarketValues(token) {
 
       const response = await fetch(
         `https://api.ebay.com/buy/browse/v1/item_summary/search?${params}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'X-EBAY-C-MARKETPLACE-ID': 'EBAY_GB',
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}`, 'X-EBAY-C-MARKETPLACE-ID': 'EBAY_GB' } }
       );
 
       const data = await response.json();
@@ -218,7 +205,7 @@ async function updateMarketValues(token) {
 
       const prices = items
         .map(item => parseFloat(item.price?.value || 0))
-        .filter(p => p > 500)
+        .filter(p => p > 1500)
         .sort((a, b) => a - b);
 
       if (prices.length < 3) continue;
@@ -227,17 +214,15 @@ async function updateMarketValues(token) {
       const median = prices.length % 2 === 0
         ? (prices[mid - 1] + prices[mid]) / 2
         : prices[mid];
-
       const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
 
-      await fetch(`${process.env.SUPABASE_URL}/rest/v1/market_values`, {
+      await fetch(`${process.env.SUPABASE_URL}/rest/v1/market_values?on_conflict=reference_number`, {
         method: 'POST',
         headers: {
           apikey: process.env.SUPABASE_SERVICE_KEY,
           Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
           'Content-Type': 'application/json',
-          Prefer: 'resolution=merge-duplicates,return=minimal',
-'on-conflict': 'source,external_id',
+          Prefer: 'resolution=merge-duplicates',
         },
         body: JSON.stringify({
           reference_number: refKey,
@@ -252,9 +237,7 @@ async function updateMarketValues(token) {
         }),
       });
 
-      console.log(`Market value updated: ${refKey} -> £${Math.round(median)} median`);
       await new Promise(r => setTimeout(r, 200));
-
     } catch (err) {
       console.error(`Market value update failed for ${refKey}: ${err.message}`);
     }
@@ -268,14 +251,8 @@ async function updateMarketValues(token) {
 async function getMarketValues() {
   const response = await fetch(
     `${process.env.SUPABASE_URL}/rest/v1/market_values?select=*`,
-    {
-      headers: {
-        apikey: process.env.SUPABASE_SERVICE_KEY,
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-      },
-    }
+    { headers: { apikey: process.env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}` } }
   );
-
   const data = await response.json();
   const map = {};
   if (Array.isArray(data)) {
@@ -301,14 +278,8 @@ async function searchEbay(token, query, maxResults = 50) {
 
   const response = await fetch(
     `https://api.ebay.com/buy/browse/v1/item_summary/search?${params}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'X-EBAY-C-MARKETPLACE-ID': 'EBAY_GB',
-      },
-    }
+    { headers: { Authorization: `Bearer ${token}`, 'X-EBAY-C-MARKETPLACE-ID': 'EBAY_GB' } }
   );
-
   const data = await response.json();
   return data.itemSummaries || [];
 }
@@ -331,7 +302,7 @@ async function scrapeAllWatches(token, marketValues) {
         seen.add(item.itemId);
 
         const price = parseFloat(item.price?.value || 0);
-        if (price < 500) continue;
+        if (price < 1500) continue;
 
         const fallback = FALLBACK_VALUES[searchConfig.refKey];
         const marketValue = marketValues[searchConfig.refKey] || fallback?.value || 0;
@@ -346,7 +317,7 @@ async function scrapeAllWatches(token, marketValues) {
           ? Math.round(((marketValue - price) / marketValue) * 100)
           : 0;
 
-        const isDeal = discountPct >= 8;
+        const isDeal = discountPct >= 12;
         const isHot = price <= hotThreshold;
         const isDiscontinued = fallback?.discontinued || false;
         const isPriorityAlert = isDiscontinued && isHot;
@@ -378,7 +349,6 @@ async function scrapeAllWatches(token, marketValues) {
       }
 
       await new Promise(r => setTimeout(r, 300));
-
     } catch (err) {
       console.error(`Search failed for "${searchConfig.query}": ${err.message}`);
     }
@@ -410,7 +380,8 @@ async function saveToSupabase(listings) {
           apikey: process.env.SUPABASE_SERVICE_KEY,
           Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
           'Content-Type': 'application/json',
-          Prefer: 'resolution=merge-duplicates',
+          Prefer: 'resolution=merge-duplicates,return=minimal',
+          'on-conflict': 'source,external_id',
         },
         body: JSON.stringify(batch),
       }
