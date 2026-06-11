@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — ChronoEdge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-dark:#A8872E;--black:#0d0d0d;--white:#ffffff;
+  --off:#f7f6f3;--border:#dddbd3;--t1:#0f0f0f;--t2:#333333;--t3:#666666;--t4:#999999;
+  --serif:'Playfair Display',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;
+}
+body{font-family:var(--sans);background:var(--off);color:var(--t1);-webkit-font-smoothing:antialiased}
+
+/* LOGIN SCREEN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--white);padding:24px}
+.login-box{max-width:420px;width:100%;text-align:center}
+.login-logo{font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:4px;color:var(--black);margin-bottom:48px;display:block}
+.login-logo span{color:var(--gold)}
+.login-box h1{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--t1);margin-bottom:12px}
+.login-box p{font-size:15px;color:var(--t3);margin-bottom:32px;line-height:1.7}
+.login-input{width:100%;padding:14px 16px;font-size:15px;border:1.5px solid var(--border);outline:none;font-family:var(--sans);transition:border-color 0.2s;margin-bottom:12px}
+.login-input:focus{border-color:var(--gold)}
+.login-btn{width:100%;background:var(--gold);color:var(--white);padding:15px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:0.5px;transition:background 0.2s}
+.login-btn:hover{background:var(--gold-dark)}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+.login-msg{margin-top:16px;font-size:14px;color:var(--t3);line-height:1.6}
+.login-msg.success{color:#2d7a2d}
+.login-msg.error{color:#cc3333}
+
+/* DASHBOARD */
+.dashboard{display:none}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:var(--serif);font-size:18px;font-weight:700;letter-spacing:4px;color:var(--black);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:20px}
+.nav-plan{font-size:11px;letter-spacing:2px;text-transform:uppercase;background:var(--gold);color:var(--white);padding:5px 14px;font-weight:700}
+.nav-email{font-size:13px;color:var(--t3);font-weight:500}
+.nav-logout{font-size:13px;color:var(--t3);cursor:pointer;font-weight:500;background:none;border:none;font-family:var(--sans)}
+.nav-logout:hover{color:var(--t1)}
+
+/* STATS BAR */
+.stats-bar{background:var(--white);border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{padding:20px 24px;border-right:1px solid var(--border);text-align:center}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--t1);line-height:1}
+.stat-n.gold{color:var(--gold)}
+.stat-l{font-size:11px;color:var(--t4);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;font-weight:600}
+
+/* FILTERS */
+.filters{padding:20px 32px;background:var(--white);border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filter-label{font-size:12px;color:var(--t3);font-weight:600;letter-spacing:0.5px}
+select{padding:8px 14px;font-size:13px;border:1.5px solid var(--border);background:var(--white);font-family:var(--sans);color:var(--t1);cursor:pointer;outline:none}
+select:focus{border-color:var(--gold)}
+.filter-count{margin-left:auto;font-size:13px;color:var(--t3);font-weight:500}
+
+/* DEALS GRID */
+.deals-grid{padding:24px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.deal-card{background:var(--white);border:1px solid var(--border);overflow:hidden;transition:border-color 0.2s}
+.deal-card:hover{border-color:var(--gold)}
+.deal-card-top{background:#faf8f0;border-bottom:1px solid #ede5c8;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.deal-card-top-l{display:flex;align-items:center;gap:7px}
+.pulse{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.deal-card-top span{font-size:10px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+.disc-badge{font-size:11px;font-weight:700;color:var(--white);background:var(--gold);padding:3px 10px}
+.disc-badge.high{background:#2d7a2d}
+.deal-card-body{padding:16px}
+.deal-brand{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:700}
+.deal-model{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--t1);margin-bottom:3px;line-height:1.3}
+.deal-ref{font-size:12px;color:var(--t4);margin-bottom:14px;font-weight:500}
+.deal-prices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.dp-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:4px;font-weight:700}
+.dp-v{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--t1)}
+.dp-v.muted{color:var(--t4)}
+.dp-v.gold{color:var(--gold)}
+.deal-card-foot{border-top:1px solid var(--border);padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.deal-cond{font-size:11px;color:var(--t4);font-weight:500}
+.deal-link{font-size:12px;color:var(--gold);text-decoration:none;font-weight:700}
+.deal-link:hover{text-decoration:underline}
+
+/* PRIORITY BANNER */
+.priority-card{border-color:#8B0000!important}
+.priority-card .deal-card-top{background:#fff0f0;border-bottom-color:#ffd0d0}
+.priority-tag{background:#8B0000;color:#fff;font-size:10px;letter-spacing:1.5px;padding:3px 10px;font-weight:700}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:80px 24px;color:var(--t4)}
+.empty h3{font-family:var(--serif);font-size:24px;color:var(--t2);margin-bottom:8px}
+
+/* LOADING */
+.loading{text-align:center;padding:80px 24px;color:var(--t4);font-size:15px}
+
+@media(max-width:768px){
+  nav{padding:0 16px}.filters{padding:16px}.deals-grid{padding:16px;grid-template-columns:1fr}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}.stat{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <span class="login-logo">CHRONO<span>EDGE</span></span>
+    <h1>Member login</h1>
+    <p>Enter the email address associated with your ChronoEdge subscription. We'll send you a secure login link.</p>
+    <input type="email" class="login-input" id="email-input" placeholder="your@email.com">
+    <button class="login-btn" id="login-btn" onclick="sendMagicLink()">Send login link</button>
+    <div class="login-msg" id="login-msg"></div>
+    <p style="margin-top:32px;font-size:13px;color:#bbb;">Not a subscriber? <a href="/#pricing" style="color:var(--gold);font-weight:600;">View plans →</a></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <nav>
+    <a href="/" class="nav-logo">CHRONO<span>EDGE</span></a>
+    <div class="nav-right">
+      <span class="nav-plan" id="nav-plan">Enthusiast</span>
+      <span class="nav-email" id="nav-email"></span>
+      <button class="nav-logout" onclick="logout()">Log out</button>
+    </div>
+  </nav>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-n" id="s-total">—</div>
+      <div class="stat-l">Listings tracked</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n gold" id="s-hot">—</div>
+      <div class="stat-l">Hot deals now</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n" id="s-brands">5</div>
+      <div class="stat-l">Brands tracked</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n gold">30m</div>
+      <div class="stat-l">Scan frequency</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <span class="filter-label">Brand:</span>
+    <select id="filter-brand" onchange="applyFilters()">
+      <option value="">All brands</option>
+      <option value="Rolex">Rolex</option>
+      <option value="Patek Philippe">Patek Philippe</option>
+      <option value="Audemars Piguet">Audemars Piguet</option>
+      <option value="Richard Mille">Richard Mille</option>
+      <option value="Cartier">Cartier</option>
+    </select>
+    <span class="filter-label">Sort:</span>
+    <select id="filter-sort" onchange="applyFilters()">
+      <option value="discount">Biggest discount first</option>
+      <option value="newest">Newest first</option>
+      <option value="price_asc">Lowest price first</option>
+      <option value="price_desc">Highest price first</option>
+    </select>
+    <span class="filter-count" id="filter-count"></span>
+  </div>
+
+  <div class="deals-grid" id="deals-grid">
+    <div class="loading">Loading deals...</div>
+  </div>
+</div>
+
+<script>
+const SB = 'https://vvhuvrlgckurvvaxgtdr.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2aHV2cmxnY2t1cnZ2YXhndGRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTY4MjUsImV4cCI6MjA5NjU3MjgyNX0.3zzwXDZL8dXaHHTgddb16u50bH9xE35gK5FdLd9j7v4';
+const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
+
+let allDeals = [];
+let userEmail = '';
+let userPlan = '';
+
+// Check for magic link token in URL
+async function checkToken() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const email = params.get('email');
+
+  if (token && email) {
+    try {
+      const res = await fetch(`/api/auth?token=${token}&email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+
+      if (data.valid) {
+        // Store session
+        sessionStorage.setItem('ce_email', data.email);
+        sessionStorage.setItem('ce_plan', data.plan);
+        // Clean URL
+        window.history.replaceState({}, '', '/dashboard.html');
+        showDashboard(data.email, data.plan);
+      } else {
+        showError('This login link has expired or is invalid. Please request a new one.');
+      }
+    } catch (err) {
+      showError('Login failed. Please try again.');
+    }
+    return;
+  }
+
+  // Check existing session
+  const savedEmail = sessionStorage.getItem('ce_email');
+  const savedPlan = sessionStorage.getItem('ce_plan');
+
+  if (savedEmail && savedPlan) {
+    showDashboard(savedEmail, savedPlan);
+  }
+}
+
+function showError(msg) {
+  document.getElementById('login-msg').textContent = msg;
+  document.getElementById('login-msg').className = 'login-msg error';
+}
+
+async function sendMagicLink() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email) return;
+
+  const btn = document.getElementById('login-btn');
+  const msg = document.getElementById('login-msg');
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+    msg.textContent = data.message || 'Check your email for a login link.';
+    msg.className = 'login-msg success';
+    btn.textContent = 'Link sent ✓';
+  } catch (err) {
+    msg.textContent = 'Something went wrong. Please try again.';
+    msg.className = 'login-msg error';
+    btn.disabled = false;
+    btn.textContent = 'Send login link';
+  }
+}
+
+function showDashboard(email, plan) {
+  userEmail = email;
+  userPlan = plan || 'enthusiast';
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('nav-email').textContent = email;
+  document.getElementById('nav-plan').textContent = plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : 'Enthusiast';
+
+  loadDeals();
+}
+
+function logout() {
+  sessionStorage.removeItem('ce_email');
+  sessionStorage.removeItem('ce_plan');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('email-input').value = '';
+  document.getElementById('login-msg').textContent = '';
+  document.getElementById('login-btn').disabled = false;
+  document.getElementById('login-btn').textContent = 'Send login link';
+}
+
+async function loadDeals() {
+  try {
+    // Load stats
+    const r1 = await fetch(`${SB}/rest/v1/listings?select=id,is_hot&limit=2000`, { headers: H });
+    const all = await r1.json();
+    if (Array.isArray(all)) {
+      document.getElementById('s-total').textContent = all.length.toLocaleString();
+      document.getElementById('s-hot').textContent = all.filter(l => l.is_hot).length.toLocaleString();
+    }
+
+    // Load hot deals
+    const r2 = await fetch(
+      `${SB}/rest/v1/listings?is_hot=eq.true&is_active=eq.true&select=*&order=discount_pct.asc&limit=100`,
+      { headers: H }
+    );
+    allDeals = await r2.json();
+
+    applyFilters();
+
+  } catch (err) {
+    document.getElementById('deals-grid').innerHTML = '<div class="loading">Failed to load deals. Please refresh.</div>';
+  }
+}
+
+function applyFilters() {
+  const brand = document.getElementById('filter-brand').value;
+  const sort = document.getElementById('filter-sort').value;
+
+  let filtered = [...allDeals];
+
+  if (brand) {
+    filtered = filtered.filter(d => d.brand_name === brand);
+  }
+
+  if (sort === 'discount') {
+    filtered.sort((a, b) => a.discount_pct - b.discount_pct);
+  } else if (sort === 'newest') {
+    filtered.sort((a, b) => new Date(b.last_seen_at) - new Date(a.last_seen_at));
+  } else if (sort === 'price_asc') {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (sort === 'price_desc') {
+    filtered.sort((a, b) => b.price - a.price);
+  }
+
+  document.getElementById('filter-count').textContent = `${filtered.length} deal${filtered.length !== 1 ? 's' : ''}`;
+  renderDeals(filtered);
+}
+
+function renderDeals(deals) {
+  const grid = document.getElementById('deals-grid');
+
+  if (!deals || deals.length === 0) {
+    grid.innerHTML = `<div class="empty"><h3>No deals found</h3><p>Try changing the filters or check back soon.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = deals.map(d => {
+    const saving = d.market_value - d.price;
+    const savingText = saving > 0 ? `£${Math.round(saving).toLocaleString()}` : '—';
+    const disc = Math.abs(d.discount_pct);
+    const isPriority = d.is_priority_alert;
+    const isHigh = disc >= 15;
+    const model = d.model ? (d.model.length > 55 ? d.model.substring(0, 55) + '...' : d.model) : d.reference_number;
+
+    return `
+      <div class="deal-card ${isPriority ? 'priority-card' : ''}">
+        <div class="deal-card-top">
+          <div class="deal-card-top-l">
+            <div class="pulse"></div>
+            <span>Live deal</span>
+          </div>
+          ${isPriority
+            ? `<span class="priority-tag">⚡ Discontinued</span>`
+            : `<span class="disc-badge ${isHigh ? 'high' : ''}">${disc}% below market</span>`
+          }
+        </div>
+        <div class="deal-card-body">
+          <div class="deal-brand">${d.brand_name || ''}</div>
+          <div class="deal-model">${model}</div>
+          <div class="deal-ref">Ref. ${d.reference_number || '—'} · ${d.condition || 'Pre-owned'}</div>
+          <div class="deal-prices">
+            <div>
+              <div class="dp-l">Listed at</div>
+              <div class="dp-v">£${Math.round(d.price).toLocaleString()}</div>
+            </div>
+            <div>
+              <div class="dp-l">Market value</div>
+              <div class="dp-v muted">£${Math.round(d.market_value).toLocaleString()}</div>
+            </div>
+            <div>
+              <div class="dp-l">You save</div>
+              <div class="dp-v gold">${savingText}</div>
+            </div>
+          </div>
+        </div>
+        <div class="deal-card-foot">
+          <span class="deal-cond">${d.seller_name || 'eBay UK'}</span>
+          <a href="${d.listing_url}" target="_blank" class="deal-link">View on eBay →</a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Allow login on Enter key
+document.getElementById('email-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMagicLink();
+});
+
+// Init
+checkToken();
+</script>
+</body>
+</html>
