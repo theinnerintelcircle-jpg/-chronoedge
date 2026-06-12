@@ -171,7 +171,7 @@ function isSuspicious(item, price, marketValue) {
   const title = (item.title || '').toLowerCase();
   if (marketValue > 0 && price < marketValue * 0.60) return true;
   if (price < 1500) return true;
-  const fakeKeywords = ['inspired', 'homage', 'rep ', 'replica', 'grade', 'aaa', 'clone', 'copy', 'fake', 'imitation', 'lookalike', 'dial only', 'dial sealed', 'dial blister', 'pikachu', 'parts only', 'for parts', 'spares', 'movement only', 'case only', 'no watch'];
+  const fakeKeywords = ['inspired', 'homage', 'rep ', 'replica', 'grade', 'aaa', 'clone', 'copy', 'fake', 'imitation', 'lookalike', 'dial only', 'dial sealed', 'dial blister', 'pikachu', 'parts only', 'for parts', 'spares', 'movement only', 'case only', 'no watch', 'vvs', 'lab diamond', 'natural diamond', 'diamond bezel', 'diamond dial', 'iced out', 'custom diamond'];
   if (fakeKeywords.some(kw => title.includes(kw))) return true;
   const misspellings = ['roiex', 'rollex', 'pattek', 'audemar ', 'richrd mille'];
   if (misspellings.some(kw => title.includes(kw))) return true;
