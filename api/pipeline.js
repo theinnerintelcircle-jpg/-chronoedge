@@ -186,6 +186,7 @@ async function updateMarketValues(token) {
   console.log('Updating market values from sold listings...');
   for (const refKey of Object.keys(FALLBACK_VALUES)) {
     try {
+      if (refKey.startsWith('WSSA')) continue;
       const params = new URLSearchParams({
         q: refKey,
         category_ids: '31387',
