@@ -206,7 +206,7 @@ async function updateMarketValues(token) {
 
       const prices = items
         .map(item => parseFloat(item.price?.value || 0))
-        .filter(p => p > 1500)
+        .filter(p => p > (({'WSSA0029':4000,'WSSA0018':5000,'126710BLRO':15000,'5711/1A':60000})[refKey] || 1500))
         .sort((a, b) => a - b);
 
       if (prices.length < 3) continue;
