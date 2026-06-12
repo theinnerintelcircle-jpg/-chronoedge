@@ -59,11 +59,11 @@ select:focus{border-color:var(--gold)}
 .pulse{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 .deal-card-top span{font-size:10px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
-.disc-badge{font-size:11px;font-weight:700;color:var(--white);background:var(--gold);padding:3px 10px}
-.disc-badge.high{background:#2d7a2d}
+.disc-badge{font-size:11px;font-weight:700;color:#ffffff;background:var(--gold);padding:3px 10px}
+.disc-badge.high{background:#1a5c1a;color:#ffffff}
 .priority-tag{background:#8B0000;color:#fff;font-size:10px;letter-spacing:1.5px;padding:3px 10px;font-weight:700}
-.deal-img-wrap{width:100%;height:200px;overflow:hidden;background:#f0ede8;display:flex;align-items:center;justify-content:center}
-.deal-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.deal-img-wrap{width:100%;height:180px;background:#f5f3ee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-bottom:1px solid var(--border)}
+.brand-circle{width:72px;height:72px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center}.brand-circle span{font-size:28px;font-weight:700;color:var(--gold);font-family:var(--serif)}.brand-sm{font-size:11px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-weight:500}
 .deal-img-placeholder{color:#ccc;font-size:40px}
 .deal-card-body{padding:16px;flex:1}
 .deal-brand{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:700}
@@ -279,10 +279,8 @@ function renderDeals(deals){
     const isPriority=d.is_priority_alert;
     const isHigh=disc>=20;
     const model=d.model?(d.model.length>55?d.model.substring(0,55)+'...':d.model):d.reference_number;
-    const imgUrl=getImageUrl(d.image_urls);
-    const imgHtml=imgUrl
-      ?`<div class="deal-img-wrap"><img src="${imgUrl}" alt="${model}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="deal-img-placeholder" style="display:none">⌚</div></div>`
-      :`<div class="deal-img-wrap"><div class="deal-img-placeholder">⌚</div></div>`;
+    const brandInitial=(d.brand_name||'W').charAt(0).toUpperCase();
+    const imgHtml=`<div class="deal-img-wrap"><div class="brand-circle"><span>${brandInitial}</span></div><div class="brand-sm">${d.brand_name||''}</div></div>`;
     return `
       <div class="deal-card ${isPriority?'priority-card':''}">
         <div class="deal-card-top">
