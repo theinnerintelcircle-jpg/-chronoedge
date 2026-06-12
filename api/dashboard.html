@@ -314,16 +314,11 @@ function renderDeals(deals) {
 
     // Get image URL from image_urls array
     let imageUrl = null;
-    if (d.image_urls) {
-      if (Array.isArray(d.image_urls) && d.image_urls.length > 0) {
-        imageUrl = d.image_urls[0];
-      } else if (typeof d.image_urls === 'string' && d.image_urls.startsWith('[')) {
-        try {
-          const parsed = JSON.parse(d.image_urls);
-          imageUrl = parsed[0] || null;
-        } catch(e) {}
-      }
-    }
+    try {
+      let urls = d.image_urls;
+      if (typeof urls === 'string') urls = JSON.parse(urls);
+      if (Array.isArray(urls) && urls.length > 0) imageUrl = urls[0];
+    } catch(e) {}
 
     const imageHtml = imageUrl
       ? `<img class="deal-image" src="${imageUrl}" alt="${model}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'deal-image-placeholder\\'><svg width=\\'48\\' height=\\'48\\' viewBox=\\'0 0 24 24\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\' stroke=\\'#999\\' stroke-width=\\'1.5\\' fill=\\'none\\'/><path d=\\'M12 6v6l4 2\\' stroke=\\'#999\\' stroke-width=\\'1.5\\' stroke-linecap=\\'round\\'/></svg></div>'">`
