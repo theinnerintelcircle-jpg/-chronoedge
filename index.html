@@ -132,7 +132,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop
 
 /* PRICING */
 .pricing{padding:100px 48px;max-width:1100px;margin:0 auto;text-align:center}
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:52px;border:1px solid var(--border)}
+.pricing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin:52px auto 0;border:1px solid var(--border);max-width:760px}
 .p-card{padding:44px 36px;text-align:left;border-right:1px solid var(--border);position:relative}
 .p-card:last-child{border-right:none}
 .p-card.featured{background:var(--black)}
@@ -145,7 +145,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop
 .p-features{list-style:none;margin-bottom:36px}
 .p-features li{font-size:14px;color:var(--t2);padding:10px 0;border-bottom:1px solid var(--border);line-height:1.5;font-weight:500}
 .p-card.featured .p-features li{color:rgba(255,255,255,0.6);border-bottom-color:rgba(255,255,255,0.08)}
-.p-btn{display:block;text-align:center;padding:15px;font-size:13px;letter-spacing:1px;font-weight:700;text-decoration:none;transition:all 0.2s;border:2px solid var(--border);color:var(--t1)}
+.p-btn{display:block;text-align:center;padding:15px;font-size:13px;letter-spacing:1px;font-weight:700;text-decoration:none;transition:all 0.2s;border:2px solid var(--border);color:var(--t1);cursor:pointer;background:transparent;width:100%;font-family:var(--sans)}
 .p-btn:hover{background:var(--off)}
 .p-card.featured .p-btn{background:var(--gold);color:var(--white);border-color:var(--gold)}
 .p-card.featured .p-btn:hover{background:var(--gold-dark);border-color:var(--gold-dark)}
@@ -382,43 +382,30 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,0.07);paddi
   <div class="pricing-grid">
     <div class="p-card">
       <div class="p-tier">Enthusiast</div>
-      <div class="p-price">£49</div>
+      <div class="p-price">£15</div>
       <div class="p-period">per month · cancel anytime</div>
       <ul class="p-features">
-        <li>Real-time Telegram alerts</li>
+        <li>Telegram alerts for hot deals</li>
         <li>All 46 references tracked</li>
-        <li>Hot deal notifications</li>
-        <li>5 brands covered</li>
+        <li>5 luxury brands covered</li>
         <li>Discontinued model alerts</li>
+        <li>Updates every 30 minutes</li>
       </ul>
-      <a href="https://buy.stripe.com/8x24gBfGA5fHcyv9ob5Ne03" class="p-btn">Get started</a>
+      <button class="p-btn" onclick="startCheckout('enthusiast')">Get started</button>
     </div>
     <div class="p-card featured">
       <div class="feat-tag">Most popular</div>
-      <div class="p-tier">Pro</div>
-      <div class="p-price">£149</div>
+      <div class="p-tier">Dealer</div>
+      <div class="p-price">£30</div>
       <div class="p-period">per month · cancel anytime</div>
       <ul class="p-features">
         <li>Everything in Enthusiast</li>
-        <li>Priority alerts — first access</li>
-        <li>Profit spread estimates</li>
-        <li>Discontinued model tracking</li>
-        <li>Market value trends</li>
+        <li>Real-time priority alerts</li>
+        <li>All deals from 12%+ below market</li>
+        <li>Member dashboard access</li>
+        <li>CSV export &amp; market reports</li>
       </ul>
-      <a href="https://buy.stripe.com/bJebJ3fGAcI95631VJ5Ne04" class="p-btn">Get started</a>
-    </div>
-    <div class="p-card">
-      <div class="p-tier">Dealer</div>
-      <div class="p-price">£399</div>
-      <div class="p-period">per month · cancel anytime</div>
-      <ul class="p-features">
-        <li>Everything in Pro</li>
-        <li>15 min head start on alerts</li>
-        <li>3 team seats included</li>
-        <li>Dedicated support</li>
-        <li>Priority onboarding</li>
-      </ul>
-      <a href="https://buy.stripe.com/6oU5kF7a4gYpaqnfMz5Ne05" class="p-btn">Get started</a>
+      <button class="p-btn" onclick="startCheckout('dealer')">Get started</button>
     </div>
   </div>
   <p class="p-note">All plans · Cancel anytime · No contracts · No setup fees</p>
@@ -498,6 +485,15 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,0.07);paddi
 const SB='https://vvhuvrlgckurvvaxgtdr.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2aHV2cmxnY2t1cnZ2YXhndGRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTY4MjUsImV4cCI6MjA5NjU3MjgyNX0.3zzwXDZL8dXaHHTgddb16u50bH9xE35gK5FdLd9j7v4';
 const H={apikey:KEY,Authorization:`Bearer ${KEY}`};
+
+async function startCheckout(plan){
+  try{
+    const r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan})});
+    const d=await r.json();
+    if(d.url)window.location.href=d.url;
+    else alert('Something went wrong. Please try again.');
+  }catch(e){alert('Something went wrong. Please try again.');}
+}
 
 async function load(){
   try{
