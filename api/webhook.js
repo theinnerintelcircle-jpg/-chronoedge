@@ -16,9 +16,8 @@ async function getRawBody(req) {
 
 function getPlanFromPriceId(priceId) {
   const plans = {
-    'price_enthusiast': 'enthusiast',
-    'price_pro': 'pro',
-    'price_dealer': 'dealer',
+    'price_1ThsmORCLgFBKsQfe3nuisBh': 'enthusiast',
+    'price_1Thsp0RCLgFBKsQf6RZ86D5R': 'dealer',
   };
   return plans[priceId] || 'enthusiast';
 }
